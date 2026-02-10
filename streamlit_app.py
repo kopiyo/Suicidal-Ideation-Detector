@@ -2,7 +2,8 @@ import streamlit as st
 import pickle
 import numpy as np
 import time  # NEW
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.utils import pad_sequences
+
 from tensorflow.keras.models import load_model
 
 # Page configuration
