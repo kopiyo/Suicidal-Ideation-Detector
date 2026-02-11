@@ -429,6 +429,21 @@ with colA:
 
 # ── COL B — Crisis info + Result ────────────────────────────────────────────
 with colB:
+
+    # ── Always-visible Crisis Resources (TOP of col B) ──────────────────────
+    st.markdown("""
+    <p style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.85);margin:0 0 0.25rem;letter-spacing:0.5px">
+        🆘 CRISIS HELPLINES — Available 24/7
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.25rem;margin-bottom:0.4rem">
+        <div class="support-pill"><strong>🇰🇪 Kenya</strong>📞 1199<br>+254 722 178 177</div>
+        <div class="support-pill"><strong>🇺🇸 US</strong>📞 988<br>💬 HOME→741741</div>
+        <div class="support-pill"><strong>🇬🇧 UK</strong>📞 116 123<br><em>Samaritans</em></div>
+        <div class="support-pill"><strong>🌍 Intl</strong>🔗 <a href="https://findahelpline.com" target="_blank">findahelpline.com</a></div>
+    </div>
+    <hr class="divider">
+    """, unsafe_allow_html=True)
+
     r = st.session_state.last_result
 
     if r and r.get('ok') is False and r.get('empty'):
@@ -478,45 +493,9 @@ with colB:
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
         if is_high_risk:
-            st.error("🚨 **CRISIS ALERT** — High-risk content detected!")
-            c1, c2, c3, c4 = st.columns(4)
-            cards = [
-                ("🇰🇪 Kenya",  "📞 1199<br>📞 +254 722 178 177"),
-                ("🇺🇸 US",     "📞 988<br>💬 HOME → 741741"),
-                ("🇬🇧 UK",     "📞 116 123<br>(Samaritans)"),
-                ("🌍 Intl",    '🔗 <a href="https://findahelpline.com" target="_blank">findahelpline.com</a>'),
-            ]
-            for col, (title, body) in zip([c1, c2, c3, c4], cards):
-                with col:
-                    st.markdown(f'<div class="support-pill"><strong>{title}</strong>{body}</div>', unsafe_allow_html=True)
-            st.info("⚠️ For informational use only. Seek professional help if in crisis.")
+            st.error("🚨 **CRISIS ALERT** — High-risk content detected! Please use the helplines above.")
 
-    with st.expander("🆘 Crisis Resources & Support", expanded=is_high_risk):
-        r1, r2, r3 = st.columns(3)
-        with r1:
-            st.markdown("""<div class="crisis-card">
-            <strong>🇰🇪 Kenya</strong><br>
-            📞 Kenya Red Cross: 1199<br>
-            📞 Befrienders: +254 722 178 177<br>
-            📞 Lifeline: +254 20 272 1806
-            </div>""", unsafe_allow_html=True)
-        with r2:
-            st.markdown("""<div class="crisis-card">
-            <strong>🇺🇸 United States</strong><br>
-            📞 Lifeline: 988<br>
-            💬 Crisis Text: HOME → 741741<br><br>
-            <strong>🇬🇧 United Kingdom</strong><br>
-            📞 Samaritans: 116 123
-            </div>""", unsafe_allow_html=True)
-        with r3:
-            st.markdown("""<div class="crisis-card">
-            <strong>🌍 International</strong><br>
-            🔗 <a href="https://findahelpline.com" target="_blank">findahelpline.com</a><br><br>
-            <strong>Remember:</strong><br>
-            • You are not alone<br>
-            • Help available 24/7<br>
-            • Talking helps 💙
-            </div>""", unsafe_allow_html=True)
+    # Crisis resources moved to top of this column — always visible above
 
 
 # ── COL C — Analytics ────────────────────────────────────────────────────────
