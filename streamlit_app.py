@@ -319,7 +319,7 @@ st.markdown("""
 # Sample tweets for quick testing - ONLY 2 OPTIONS
 SAMPLE_TWEETS = {
     "Positive 😊": "Just got promoted at work! Feeling blessed and grateful for this opportunity.",
-    "Negative 😔": "I feel like nobody cares anymore. What's the point of trying?"
+    "Negative 😔": "I feel like nobody cares anymore. I am so depressed. What's the point of trying?"
 }
 
 # Initialize session state
