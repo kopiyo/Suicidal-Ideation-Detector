@@ -449,7 +449,7 @@ with colA:
     # ── Input mode toggle ────────────────────────────────────────────────────
     mode_col1, mode_col2 = st.columns(2)
     with mode_col1:
-        if st.button("✏️ Type Text",
+        if st.button(" Type Text",
                      use_container_width=True,
                      type="primary" if st.session_state.input_mode == "text" else "secondary"):
             st.session_state.input_mode = "text"
