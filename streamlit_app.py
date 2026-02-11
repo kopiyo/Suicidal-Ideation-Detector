@@ -397,6 +397,14 @@ def load_model_and_tokenizer():
 
 model, tokenizer = load_model_and_tokenizer()
 
+
+# -------- Clear Function --------
+def clear_text():
+    st.session_state.user_input = ""
+    st.session_state["text_area"] = ""
+    st.session_state.should_analyze = False
+
+
 # Main app layout
 with st.container():
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
@@ -439,14 +447,10 @@ with st.container():
         analyze_button = st.button("🔍 Analyze Tweet", use_container_width=True)
     
     with col2:
-        clear_button = st.button("🗑️ Clear", use_container_width=True)
+        clear_button = st.button("🗑️ Clear", use_container_width=True, on_click=clear_text)
+
     
-    # Handle clear button
-    if clear_button:
-        st.session_state.user_input = ""
-        st.session_state["text_area"] = "" 
-        st.session_state.should_analyze = False
-        st.rerun()
+    
 
     # Analysis logic - triggered by button OR sample tweet
     if analyze_button or st.session_state.should_analyze:
