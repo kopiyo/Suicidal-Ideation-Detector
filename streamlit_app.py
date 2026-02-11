@@ -2,8 +2,11 @@ import streamlit as st
 import pickle
 import numpy as np
 import time
+from datetime import datetime
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
+import plotly.graph_objects as go
+import plotly.express as px
 
 # Page configuration
 st.set_page_config(
@@ -117,6 +120,31 @@ st.markdown("""
         line-height: 1.6;
     }
 
+    /* Stat cards for Analytics Dashboard */
+    .stat-card {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin: 0.5rem;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin: 0.5rem 0;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
     /* Text area label */
     .stTextArea label {
         color: #ffffff !important;
@@ -210,6 +238,17 @@ st.markdown("""
         border-radius: 12px !important;
         backdrop-filter: blur(10px);
         padding: 1rem 1.2rem !important;
+    }
+    
+    /* Error boxes - for Crisis Alert */
+    .stError {
+        background-color: rgba(244, 67, 54, 0.25) !important;
+        color: #fff !important;
+        border-left: 5px solid #f44336 !important;
+        border-radius: 12px !important;
+        backdrop-filter: blur(10px);
+        padding: 1rem 1.2rem !important;
+        font-weight: 600 !important;
     }
 
     /* Spinner */
@@ -375,6 +414,15 @@ SAMPLE_TWEETS = {
     "Negative 😔": "I feel like nobody cares anymore. I am so depressed. What's the point of trying?"
 }
 
+# ===== NEW: Initialize Analytics Session State =====
+if 'analytics' not in st.session_state:
+    st.session_state.analytics = {
+        'total_analyses': 0,
+        'positive_count': 0,
+        'negative_count': 0,
+        'history': []
+    }
+
 # Initialize session state
 if 'user_input' not in st.session_state:
     st.session_state.user_input = ""
@@ -404,6 +452,77 @@ def clear_text():
     st.session_state["text_area"] = ""
     st.session_state.should_analyze = False
 
+# ===== NEW: Function to update analytics =====
+def update_analytics(prob, text):
+    st.session_state.analytics['total_analyses'] += 1
+    
+    if prob >= 0.5:
+        st.session_state.analytics['positive_count'] += 1
+        classification = "Positive"
+    else:
+        st.session_state.analytics['negative_count'] += 1
+        classification = "Negative"
+    
+    # Add to history (keep last 10)
+    st.session_state.analytics['history'].append({
+        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'classification': classification,
+        'probability': float(prob),
+        'text_preview': text[:50] + "..." if len(text) > 50 else text
+    })
+    
+    # Keep only last 10 analyses
+    if len(st.session_state.analytics['history']) > 10:
+        st.session_state.analytics['history'] = st.session_state.analytics['history'][-10:]
+
+# ===== NEW: Function to create sentiment intensity gauge =====
+def create_sentiment_gauge(prob):
+    # Determine sentiment direction and intensity
+    if prob >= 0.5:
+        # Positive sentiment
+        intensity = (prob - 0.5) * 2  # Scale 0.5-1.0 to 0-1
+        color = "#51cf66"
+        sentiment = "Positive"
+    else:
+        # Negative sentiment  
+        intensity = (0.5 - prob) * 2  # Scale 0-0.5 to 1-0
+        color = "#ff6b6b"
+        sentiment = "Negative"
+    
+    fig = go.Figure(go.Indicator(
+        mode = "gauge+number",
+        value = intensity * 100,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        title = {'text': f"{sentiment} Sentiment Intensity", 'font': {'color': 'white', 'size': 20}},
+        number = {'suffix': "%", 'font': {'color': 'white', 'size': 40}},
+        gauge = {
+            'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "white"},
+            'bar': {'color': color},
+            'bgcolor': "rgba(255,255,255,0.1)",
+            'borderwidth': 2,
+            'bordercolor': "white",
+            'steps': [
+                {'range': [0, 33], 'color': 'rgba(255,255,255,0.1)'},
+                {'range': [33, 66], 'color': 'rgba(255,255,255,0.15)'},
+                {'range': [66, 100], 'color': 'rgba(255,255,255,0.2)'}
+            ],
+            'threshold': {
+                'line': {'color': "white", 'width': 4},
+                'thickness': 0.75,
+                'value': 80
+            }
+        }
+    ))
+    
+    fig.update_layout(
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font={'color': 'white'},
+        height=300
+    )
+    
+    return fig
+
 
 # Main app layout
 with st.container():
@@ -415,6 +534,65 @@ with st.container():
     This tool uses an LSTM model to analyze the emotional tone of tweets and detect possible suicidal ideation.  
     _Enter a tweet below to begin._
     """, unsafe_allow_html=True)
+
+    # ===== NEW FEATURE 1: Analytics Dashboard =====
+    with st.expander("📊 Analytics Dashboard"):
+        if st.session_state.analytics['total_analyses'] > 0:
+            # Stats cards
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.markdown(f"""
+                <div class="stat-card">
+                    <div class="stat-label">Total Analyses</div>
+                    <div class="stat-number">{st.session_state.analytics['total_analyses']}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col2:
+                st.markdown(f"""
+                <div class="stat-card">
+                    <div class="stat-label">✅ Positive</div>
+                    <div class="stat-number" style="color: #51cf66;">{st.session_state.analytics['positive_count']}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col3:
+                st.markdown(f"""
+                <div class="stat-card">
+                    <div class="stat-label">⚠️ Negative</div>
+                    <div class="stat-number" style="color: #ff6b6b;">{st.session_state.analytics['negative_count']}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Pie chart
+            fig = px.pie(
+                values=[st.session_state.analytics['positive_count'], 
+                       st.session_state.analytics['negative_count']],
+                names=['Positive', 'Negative'],
+                title='Classification Distribution',
+                color_discrete_sequence=['#51cf66', '#ff6b6b']
+            )
+            fig.update_layout(
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font={'color': 'white'},
+                title_font_size=20
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            
+            # Recent history
+            st.markdown("### 📝 Recent Analyses")
+            for item in reversed(st.session_state.analytics['history'][-5:]):
+                emoji = "🟢" if item['classification'] == "Positive" else "🔴"
+                st.markdown(f"""
+                **{emoji} {item['classification']}** - {item['timestamp']}  
+                _{item['text_preview']}_  
+                Confidence: {item['probability']:.1%}
+                """)
+                st.markdown("---")
+        else:
+            st.info("📊 No analyses yet. Run your first analysis to see statistics!")
 
     # Quick sample tweets section - ONLY 2 BUTTONS
     with st.expander(" Try Sample Tweets"):
@@ -468,6 +646,9 @@ with st.container():
 
                 end_time = time.time()
                 elapsed_ms = (end_time - start_time) * 1000
+                
+                # ===== NEW: Update analytics =====
+                update_analytics(prob, st.session_state.user_input)
 
             # Determine result and confidence level
             if prob < 0.5:
@@ -493,11 +674,43 @@ with st.container():
                 conf_label = "Low Confidence"
                 conf_class = "confidence-low"
 
+            # ===== NEW FEATURE 7: Crisis Alert System =====
+            if prob < 0.5:
+                st.error("🚨 **CRISIS ALERT**: High-risk content detected!")
+                st.markdown("### 🆘 Immediate Support Available")
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.markdown("""
+                    **🇰🇪 Kenya**  
+                    📞 1199  
+                    📞 +254 722 178 177
+                    """)
+                with col2:
+                    st.markdown("""
+                    **🇺🇸 US**  
+                    📞 988  
+                    💬 Text HOME to 741741
+                    """)
+                with col3:
+                    st.markdown("""
+                    **🇬🇧 UK**  
+                    📞 116 123  
+                    (Samaritans)
+                    """)
+
             # Display results
             st.markdown('<div class="result-card">', unsafe_allow_html=True)
             
             st.markdown(f'<div style="text-align: center; font-size: 4rem; margin: 1rem 0;">{emoji}</div>', unsafe_allow_html=True)
             st.markdown(f'<h2 style="color: {color}; text-align: center; margin: 1rem 0;">{label}</h2>', unsafe_allow_html=True)
+            
+            st.markdown("---")
+            
+            # ===== NEW FEATURE 2: Sentiment Intensity Meter =====
+            st.markdown("### 📊 Sentiment Intensity")
+            gauge_fig = create_sentiment_gauge(prob)
+            st.plotly_chart(gauge_fig, use_container_width=True)
             
             st.markdown("---")
             
@@ -533,7 +746,8 @@ with st.container():
             )
             
             st.markdown('</div>', unsafe_allow_html=True)
-            # -------- Result Summary (Copy / Download) --------
+            
+            # ===== EXISTING: Result Summary (Copy / Download) =====
             result_text = f"""Tweet:
             {st.session_state.user_input}
             Prediction: {label.strip()}
