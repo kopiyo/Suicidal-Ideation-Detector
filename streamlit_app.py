@@ -76,7 +76,7 @@ st.markdown("""
 def load_model_and_tokenizer():
     try:
         # Load the model - this works with both Keras 2 and Keras 3
-        model = load_model("lstm_model.keras")
+        model = load_model("lstm_model.h5")
         
         # Load tokenizer
         with open("tokenizer.pkl", "rb") as f:
