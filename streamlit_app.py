@@ -278,78 +278,97 @@ SAMPLE_TWEETS = {
 
 # ─── Session state ──────────────────────────────────────────────────────────────
 if 'analytics' not in st.session_state:
-    st.session_state.analytics = {'total_analyses':0,'positive_count':0,'negative_count':0,'history':[]}
+    st.session_state.analytics = {'total_analyses': 0, 'positive_count': 0, 'negative_count': 0, 'history': []}
 if 'user_input'     not in st.session_state: st.session_state.user_input     = ""
 if 'should_analyze' not in st.session_state: st.session_state.should_analyze = False
 if 'last_result'    not in st.session_state: st.session_state.last_result    = None
+
+# ─── Patch stale history entries (fixes KeyError on reloads) ──────────────────
+for entry in st.session_state.analytics.get('history', []):
+    entry.setdefault('cls',  'Unknown')
+    entry.setdefault('ts',   '')
+    entry.setdefault('prob', 0.0)
+    entry.setdefault('txt',  '')
 
 # ─── Load model ─────────────────────────────────────────────────────────────────
 @st.cache_resource
 def load_model_and_tokenizer():
     try:
         model = load_model("lstm_model.h5")
-        with open("tokenizer.pkl","rb") as f:
+        with open("tokenizer.pkl", "rb") as f:
             tokenizer = pickle.load(f)
         return model, tokenizer
     except Exception as e:
-        st.error(f"❌ {e}"); st.stop()
+        st.error(f"❌ {e}")
+        st.stop()
 
 model, tokenizer = load_model_and_tokenizer()
 
 # ─── Helpers ────────────────────────────────────────────────────────────────────
 def clear_text():
-    st.session_state.user_input    = ""
-    st.session_state["text_area"]  = ""
+    st.session_state.user_input     = ""
+    st.session_state["text_area"]   = ""
     st.session_state.should_analyze = False
-    st.session_state.last_result   = None
+    st.session_state.last_result    = None
 
 def update_analytics(prob, text):
     a = st.session_state.analytics
     a['total_analyses'] += 1
     cls = "Positive" if prob >= 0.5 else "Negative"
-    if prob >= 0.5: a['positive_count'] += 1
-    else:           a['negative_count'] += 1
+    if prob >= 0.5:
+        a['positive_count'] += 1
+    else:
+        a['negative_count'] += 1
     a['history'].append({
-        'ts':  datetime.now().strftime("%H:%M"),
-        'cls': cls, 'prob': float(prob),
-        'txt': text[:38] + "…" if len(text)>38 else text
+        'ts':   datetime.now().strftime("%H:%M"),
+        'cls':  cls,
+        'prob': float(prob),
+        'txt':  text[:38] + "…" if len(text) > 38 else text
     })
-    if len(a['history']) > 10: a['history'] = a['history'][-10:]
+    if len(a['history']) > 10:
+        a['history'] = a['history'][-10:]
 
 def run_analysis(text):
-    seq = tokenizer.texts_to_sequences([text])
-    pad = pad_sequences(seq, maxlen=100)
-    t0  = time.time()
+    seq  = tokenizer.texts_to_sequences([text])
+    pad  = pad_sequences(seq, maxlen=100)
+    t0   = time.time()
     prob = model.predict(pad, verbose=0)[0][0]
-    ms   = (time.time()-t0)*1000
+    ms   = (time.time() - t0) * 1000
     update_analytics(prob, text)
     return float(prob), ms
 
 def gauge(prob):
-    if prob >= 0.5: intensity=(prob-0.5)*2; clr="#34d399"; lbl="Positive"
-    else:           intensity=(0.5-prob)*2;  clr="#f87171"; lbl="Negative"
+    if prob >= 0.5:
+        intensity = (prob - 0.5) * 2
+        clr = "#34d399"
+        lbl = "Positive"
+    else:
+        intensity = (0.5 - prob) * 2
+        clr = "#f87171"
+        lbl = "Negative"
+
     fig = go.Figure(go.Indicator(
-        mode="gauge+number", value=intensity*100,
-        domain={'x':[0,1],'y':[0,1]},
-        title={'text':f"{lbl} Intensity",'font':{'color':'white','size':11}},
-        number={'suffix':"%",'font':{'color':'white','size':24}},
+        mode="gauge+number", value=intensity * 100,
+        domain={'x': [0, 1], 'y': [0, 1]},
+        title={'text': f"{lbl} Intensity", 'font': {'color': 'white', 'size': 11}},
+        number={'suffix': "%", 'font': {'color': 'white', 'size': 24}},
         gauge={
-            'axis':{'range':[None,100],'tickwidth':1,'tickcolor':'white','tickfont':{'size':8}},
-            'bar':{'color':clr},
-            'bgcolor':'rgba(255,255,255,0.07)',
-            'borderwidth':1,'bordercolor':'rgba(255,255,255,0.3)',
-            'steps':[
-                {'range':[0,33], 'color':'rgba(255,255,255,0.05)'},
-                {'range':[33,66],'color':'rgba(255,255,255,0.09)'},
-                {'range':[66,100],'color':'rgba(255,255,255,0.13)'}
+            'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': 'white', 'tickfont': {'size': 8}},
+            'bar': {'color': clr},
+            'bgcolor': 'rgba(255,255,255,0.07)',
+            'borderwidth': 1, 'bordercolor': 'rgba(255,255,255,0.3)',
+            'steps': [
+                {'range': [0,  33],  'color': 'rgba(255,255,255,0.05)'},
+                {'range': [33, 66],  'color': 'rgba(255,255,255,0.09)'},
+                {'range': [66, 100], 'color': 'rgba(255,255,255,0.13)'}
             ],
-            'threshold':{'line':{'color':'white','width':2},'thickness':0.65,'value':80}
+            'threshold': {'line': {'color': 'white', 'width': 2}, 'thickness': 0.65, 'value': 80}
         }
     ))
     fig.update_layout(
         paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        font={'color':'white'}, height=165,
-        margin=dict(l=6,r=6,t=28,b=2)
+        font={'color': 'white'}, height=165,
+        margin=dict(l=6, r=6, t=28, b=2)
     )
     return fig
 
@@ -361,7 +380,6 @@ is_high_risk = False
 
 # ── COL A — Input ────────────────────────────────────────────────────────────
 with colA:
-    # Header
     st.markdown("""
     <div class="app-header">
         <span class="app-header-icon">🧠</span>
@@ -371,7 +389,6 @@ with colA:
     <hr class="divider">
     """, unsafe_allow_html=True)
 
-    # Sample tweets
     with st.expander("✨ Sample Tweets", expanded=False):
         for label, tweet in SAMPLE_TWEETS.items():
             if st.button(label, key=f"sample_{label}", use_container_width=True):
@@ -380,7 +397,6 @@ with colA:
                 st.session_state.should_analyze = True
                 st.rerun()
 
-    # Text input
     user_input = st.text_area(
         "📝 Your tweet:",
         height=108,
@@ -390,24 +406,22 @@ with colA:
     )
     st.session_state.user_input = user_input
 
-    # Buttons
     b1, b2 = st.columns([1.6, 1])
     with b1: analyze_btn = st.button("🔍 Analyze", use_container_width=True)
-    with b2: st.button("🗑️ Clear",   use_container_width=True, on_click=clear_text)
+    with b2: st.button("🗑️ Clear", use_container_width=True, on_click=clear_text)
 
-    # Trigger analysis
     if analyze_btn:
         if user_input.strip():
             p, ms = run_analysis(user_input)
-            st.session_state.last_result = {'prob':p,'ms':ms,'text':user_input,'ok':True}
+            st.session_state.last_result = {'prob': p, 'ms': ms, 'text': user_input, 'ok': True}
         else:
-            st.session_state.last_result = {'ok':False,'empty':True}
+            st.session_state.last_result = {'ok': False, 'empty': True}
         st.rerun()
 
     if st.session_state.should_analyze and st.session_state.user_input.strip():
         st.session_state.should_analyze = False
         p, ms = run_analysis(st.session_state.user_input)
-        st.session_state.last_result = {'prob':p,'ms':ms,'text':st.session_state.user_input,'ok':True}
+        st.session_state.last_result = {'prob': p, 'ms': ms, 'text': st.session_state.user_input, 'ok': True}
         st.rerun()
 
     st.markdown('<div class="col-footer">Built with ❤️ Streamlit + LSTM · Mental Health Awareness</div>', unsafe_allow_html=True)
@@ -424,12 +438,12 @@ with colB:
         prob = r['prob']
         is_high_risk = prob < 0.5
 
-        # ── Result card (TOP of col B) ──────────────────────────────────────
-        label     = "🔴 Suicidal / Negative"    if prob < 0.5 else "🟢 Non-Suicidal / Positive"
-        color     = "#f87171"                    if prob < 0.5 else "#34d399"
-        risk_lbl  = "HIGH RISK"                  if prob < 0.5 else "LOW RISK"
-        risk_cls  = "risk-high"                  if prob < 0.5 else "risk-low"
-        conf      = prob if prob >= 0.5 else (1-prob)
+        label    = "🔴 Suicidal / Negative"  if prob < 0.5 else "🟢 Non-Suicidal / Positive"
+        color    = "#f87171"                  if prob < 0.5 else "#34d399"
+        risk_lbl = "HIGH RISK"                if prob < 0.5 else "LOW RISK"
+        risk_cls = "risk-high"                if prob < 0.5 else "risk-low"
+        conf     = prob if prob >= 0.5 else (1 - prob)
+
         if conf >= 0.8:   cl, cc = "High Confidence",   "conf-high"
         elif conf >= 0.6: cl, cc = "Medium Confidence", "conf-medium"
         else:             cl, cc = "Low Confidence",    "conf-low"
@@ -440,12 +454,11 @@ with colB:
             unsafe_allow_html=True
         )
         st.plotly_chart(gauge(prob), use_container_width=True)
-
         st.markdown(
             f'<p style="font-size:0.76rem;margin:0.15rem 0"><strong>Risk:</strong> <span class="{risk_cls}">{risk_lbl}</span></p>',
             unsafe_allow_html=True
         )
-        st.progress(int(prob*100) if prob>=0.5 else int((1-prob)*100))
+        st.progress(int(prob * 100) if prob >= 0.5 else int((1 - prob) * 100))
         st.markdown(
             f'<div style="text-align:center;margin:0.25rem 0"><span class="conf-badge {cc}">{cl}: {conf:.1%}</span></div>',
             unsafe_allow_html=True
@@ -456,7 +469,6 @@ with colB:
         )
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # Download
         res_txt = (f"Tweet:\n{r['text']}\n\nPrediction: {label.strip()}\n"
                    f"Risk: {risk_lbl}\nConfidence: {conf:.1%}\n"
                    f"Latency: {r['ms']:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
@@ -465,22 +477,20 @@ with colB:
 
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
-        # ── Crisis alert (if high risk) ──────────────────────────────────────
         if is_high_risk:
             st.error("🚨 **CRISIS ALERT** — High-risk content detected!")
             c1, c2, c3, c4 = st.columns(4)
             cards = [
-                ("🇰🇪 Kenya",   "📞 1199<br>📞 +254 722 178 177"),
-                ("🇺🇸 US",      "📞 988<br>💬 HOME → 741741"),
-                ("🇬🇧 UK",      "📞 116 123<br>(Samaritans)"),
-                ("🌍 Intl",     '🔗 <a href="https://findahelpline.com" target="_blank">findahelpline.com</a>'),
+                ("🇰🇪 Kenya",  "📞 1199<br>📞 +254 722 178 177"),
+                ("🇺🇸 US",     "📞 988<br>💬 HOME → 741741"),
+                ("🇬🇧 UK",     "📞 116 123<br>(Samaritans)"),
+                ("🌍 Intl",    '🔗 <a href="https://findahelpline.com" target="_blank">findahelpline.com</a>'),
             ]
-            for col, (title, body) in zip([c1,c2,c3,c4], cards):
+            for col, (title, body) in zip([c1, c2, c3, c4], cards):
                 with col:
                     st.markdown(f'<div class="support-pill"><strong>{title}</strong>{body}</div>', unsafe_allow_html=True)
             st.info("⚠️ For informational use only. Seek professional help if in crisis.")
 
-    # ── Always-visible Crisis Resources ─────────────────────────────────────
     with st.expander("🆘 Crisis Resources & Support", expanded=is_high_risk):
         r1, r2, r3 = st.columns(3)
         with r1:
@@ -515,7 +525,6 @@ with colC:
 
     a = st.session_state.analytics
     if a['total_analyses'] > 0:
-        # Stat cards
         st.markdown(f"""
         <div class="stat-row">
             <div class="stat-card">
@@ -533,31 +542,35 @@ with colC:
         </div>
         """, unsafe_allow_html=True)
 
-        # Pie chart — correct color mapping
         fig_pie = go.Figure(go.Pie(
-            labels=['Positive','Negative'],
+            labels=['Positive', 'Negative'],
             values=[a['positive_count'], a['negative_count']],
-            marker_colors=['#34d399','#f87171'],
+            marker_colors=['#34d399', '#f87171'],
             hole=0.38,
             textfont_size=10,
             textfont_color='white'
         ))
         fig_pie.update_layout(
             paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-            font={'color':'white'}, height=185,
-            margin=dict(l=5,r=5,t=8,b=5),
-            legend=dict(font=dict(color='white',size=9), orientation='v',
-                        x=1.0, y=0.5)
+            font={'color': 'white'}, height=185,
+            margin=dict(l=5, r=5, t=8, b=5),
+            legend=dict(font=dict(color='white', size=9), orientation='v', x=1.0, y=0.5)
         )
         st.plotly_chart(fig_pie, use_container_width=True)
 
-        # Recent analyses
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
         st.markdown('<p style="font-size:0.74rem;font-weight:600;margin-bottom:0.2rem">📝 Recent Analyses</p>', unsafe_allow_html=True)
+
         for item in reversed(a['history'][-5:]):
-            emoji = "🟢" if item['cls']=="Positive" else "🔴"
+            # ── FIX: use .get() with safe defaults to prevent KeyError ──
+            cls  = item.get('cls',  'Unknown')
+            ts   = item.get('ts',   '')
+            prob = item.get('prob', 0.0)
+            txt  = item.get('txt',  '')
+            emoji = "🟢" if cls == "Positive" else "🔴"
             st.markdown(
-                f'<p style="margin:0.1rem 0;font-size:0.69rem">{emoji} <strong>{item["cls"]}</strong> · {item["ts"]} · {item["prob"]:.0%}<br><em style="color:rgba(255,255,255,0.6)">{item["txt"]}</em></p>',
+                f'<p style="margin:0.1rem 0;font-size:0.69rem">{emoji} <strong>{cls}</strong> · {ts} · {prob:.0%}<br>'
+                f'<em style="color:rgba(255,255,255,0.6)">{txt}</em></p>',
                 unsafe_allow_html=True
             )
     else:
