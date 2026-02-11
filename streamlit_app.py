@@ -75,7 +75,7 @@ st.markdown("""
 # Load model & tokenizer
 @st.cache_resource
 def load_model_and_tokenizer():
-    model = load_model("lstm_model.h5")
+    model = load_model("lstm_model.keras")
     with open("tokenizer.pkl", "rb") as f:
         tokenizer = pickle.load(f)
     return model, tokenizer
