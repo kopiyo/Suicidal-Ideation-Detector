@@ -2,6 +2,4 @@ streamlit==1.54.0
 tensorflow==2.15.0
 numpy
 pandas
-# In your requirements.txt, pin the exact versions used during training
-tensorflow==2.15.0  # or whatever version you used
-
+keras==2.15.0
