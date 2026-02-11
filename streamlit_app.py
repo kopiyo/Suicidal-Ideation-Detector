@@ -363,6 +363,7 @@ with st.container():
             with cols[idx]:
                 if st.button(label, key=f"sample_{idx}", use_container_width=True):
                     st.session_state.user_input = tweet
+                    st.session_state["text_area"] = tweet
                     st.session_state.should_analyze = True
                     st.rerun()
 
