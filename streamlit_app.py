@@ -391,6 +391,7 @@ with st.container():
     # Handle clear button
     if clear_button:
         st.session_state.user_input = ""
+        st.session_state["text_area"] = "" 
         st.session_state.should_analyze = False
         st.rerun()
 
@@ -496,6 +497,7 @@ with st.container():
         
         **🇬🇧 United Kingdom:**
         - **Samaritans:** 116 123
+        
         
         **🌍 International:**
         - **International Association for Suicide Prevention:** [findahelpline.com](https://findahelpline.com)
