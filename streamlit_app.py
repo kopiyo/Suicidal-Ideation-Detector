@@ -379,7 +379,7 @@ with st.container():
     st.session_state.user_input = user_input
 
     # Button row with analyze and clear - SMALLER CLEAR BUTTON
-    col1, col2 = st.columns([4, 1])
+    col1, col2 = st.columns([2, 1])
     
     with col1:
         analyze_button = st.button("🔍 Analyze Tweet", use_container_width=True)
