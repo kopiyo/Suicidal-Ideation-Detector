@@ -12,7 +12,7 @@ import plotly.express as px
 st.set_page_config(
     page_title="Suicidal Tweet Detector",
     page_icon="🧠",
-    layout="centered",
+    layout="wide",  # Changed to wide for better 3-column layout
     initial_sidebar_state="collapsed"
 )
 
@@ -38,6 +38,87 @@ st.markdown("""
         background-size: 400% 400%;
         animation: gradientShift 15s ease infinite;
         font-family: 'Inter', 'Segoe UI', sans-serif;
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Main container - enhanced glassmorphism */
+    .main .block-container {
+        max-width: 100%;
+        padding: 1.5rem 2rem;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 30px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.4);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Column spacing improvement */
+    [data-testid="column"] {
+        padding: 0 1rem !important;
+    }
+
+    /* First column (left) */
+    [data-testid="column"]:nth-of-type(1) {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 1.5rem !important;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+    }
+
+    /* Second column (middle) - results */
+    [data-testid="column"]:nth-of-type(2) {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 1.5rem !important;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        min-height: 400px;
+    }
+
+    /* Third column (right) */
+    [data-testid="column"]:nth-of-type(3) {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 1.5rem !important;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+    }
+
+    /* Headers */
+    h1, h2, h3 {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    h2 {
+        font-size: 2.2rem !important;
+        margin: 1rem 0 !important;
+        letter-spacing: -0.5px;
+        text-align: center;
+    }
+    
+    h3 {
+        font-size: 1.3rem !important;
+        margin-top: 1.5rem !important;
+        margin-bottom: 1rem !important;
+        text-align: center;
+    }
+
+    /* Paragraph text */
+    p {
+        color: rgba(255, 255, 255, 0.95) !important;
+        font-size: 0.95rem;
+        line-height: 1.6;
     }
 
     /* Result summary glass card */
@@ -76,71 +157,26 @@ st.markdown("""
         margin-top: 0.8rem;
     }
 
-    @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    /* Main container - enhanced glassmorphism */
-    .main .block-container {
-        max-width: 1200px; /* widened for 3 columns */
-        padding: 2.2rem 2rem;
-        background: rgba(255, 255, 255, 0.12);
-        border-radius: 30px;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.4);
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        margin-top: 2rem;
-    }
-
-    /* Headers */
-    h1, h2, h3 {
-        text-align: center;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-    }
-    
-    h2 {
-        font-size: 2.8rem !important;
-        margin: 1.5rem 0 !important;
-        letter-spacing: -0.5px;
-    }
-    
-    h3 {
-        font-size: 1.5rem !important;
-        margin-top: 2rem !important;
-    }
-
-    /* Paragraph text */
-    p {
-        color: rgba(255, 255, 255, 0.95) !important;
-        font-size: 1.05rem;
-        line-height: 1.6;
-    }
-
     /* Stat cards for Analytics Dashboard */
     .stat-card {
         background: rgba(255, 255, 255, 0.15);
         border-radius: 15px;
-        padding: 1.5rem;
+        padding: 1.2rem;
         text-align: center;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        margin: 0.5rem;
+        margin: 0.3rem;
     }
     
     .stat-number {
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 700;
         color: #ffffff;
-        margin: 0.5rem 0;
+        margin: 0.3rem 0;
     }
     
     .stat-label {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: rgba(255, 255, 255, 0.8);
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -150,7 +186,7 @@ st.markdown("""
     .stTextArea label {
         color: #ffffff !important;
         font-weight: 600 !important;
-        font-size: 1.05rem !important;
+        font-size: 1rem !important;
         margin-bottom: 0.5rem !important;
     }
 
@@ -160,8 +196,8 @@ st.markdown("""
         color: #ffffff !important;
         border: 2px solid rgba(255, 255, 255, 0.25) !important;
         border-radius: 18px !important;
-        font-size: 1rem !important;
-        padding: 1.2rem !important;
+        font-size: 0.95rem !important;
+        padding: 1rem !important;
         backdrop-filter: blur(10px);
         transition: all 0.3s ease;
         line-height: 1.6;
@@ -182,30 +218,32 @@ st.markdown("""
     /* Primary Button - gradient and hover effect */
     .stButton {
         text-align: center;
-        margin: 1.2rem 0;
+        margin: 0.8rem 0;
     }
 
     .stButton>button {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
         color: white !important;
         font-weight: 600 !important;
-        padding: 0.85rem 3.5rem !important;
+        padding: 0.6rem 1.5rem !important;
         border-radius: 50px !important;
         border: none !important;
-        font-size: 1.15rem !important;
-        box-shadow: 0 10px 30px rgba(245, 87, 108, 0.5) !important;
+        font-size: 0.9rem !important;
+        box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4) !important;
         transition: all 0.3s ease !important;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
         cursor: pointer;
+        width: 100%;
+        height: 48px;
     }
 
     .stButton>button:hover {
-        transform: translateY(-4px) !important;
-        box-shadow: 0 15px 45px rgba(245, 87, 108, 0.7) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 12px 35px rgba(245, 87, 108, 0.6) !important;
     }
 
     .stButton>button:active {
-        transform: translateY(-2px) !important;
+        transform: translateY(-1px) !important;
     }
 
     /* Progress bar */
@@ -228,7 +266,7 @@ st.markdown("""
         border-radius: 12px !important;
         backdrop-filter: blur(10px);
         padding: 1rem 1.2rem !important;
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
     
     /* Info/Success boxes */
@@ -259,16 +297,17 @@ st.markdown("""
 
     /* Expander styling */
     .streamlit-expanderHeader {
-        background-color: rgba(255, 255, 255, 0.1) !important;
+        background-color: rgba(255, 255, 255, 0.15) !important;
         border-radius: 12px !important;
         color: white !important;
         font-weight: 600 !important;
-        padding: 0.8rem 1rem !important;
+        padding: 0.7rem 1rem !important;
         backdrop-filter: blur(10px);
+        font-size: 0.95rem !important;
     }
     
     .streamlit-expanderHeader:hover {
-        background-color: rgba(255, 255, 255, 0.15) !important;
+        background-color: rgba(255, 255, 255, 0.2) !important;
     }
     
     .streamlit-expanderContent {
@@ -281,9 +320,9 @@ st.markdown("""
     /* Footer */
     .footer {
         text-align: center;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         margin-top: 2rem;
-        padding-top: 1.2rem;
+        padding-top: 1rem;
         color: rgba(255, 255, 255, 0.75);
         border-top: 1px solid rgba(255, 255, 255, 0.15);
         font-weight: 500;
@@ -301,7 +340,7 @@ st.markdown("""
         padding: 0.3rem 0.6rem !important;
         border-radius: 6px !important;
         font-weight: 600 !important;
-        font-size: 1.05rem !important;
+        font-size: 1rem !important;
     }
     
     /* Strong/Bold text */
@@ -314,8 +353,8 @@ st.markdown("""
     .result-card {
         background: rgba(255, 255, 255, 0.15);
         border-radius: 20px;
-        padding: 2rem;
-        margin: 1.2rem 0;
+        padding: 1.5rem;
+        margin: 1rem 0;
         backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.25);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -348,17 +387,19 @@ st.markdown("""
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
         color: white !important;
         font-weight: 600 !important;
-        padding: 0.85rem 3.5rem !important;
+        padding: 0.6rem 1.5rem !important;
         border-radius: 50px !important;
         border: none !important;
-        font-size: 1.05rem !important;
-        box-shadow: 0 10px 30px rgba(245, 87, 108, 0.5) !important;
+        font-size: 0.9rem !important;
+        box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4) !important;
         transition: all 0.3s ease !important;
+        width: 100%;
+        height: 48px;
     }
 
     .stDownloadButton > button:hover {
-        transform: translateY(-4px) !important;
-        box-shadow: 0 15px 45px rgba(245, 87, 108, 0.7) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 12px 35px rgba(245, 87, 108, 0.6) !important;
     }
 
     .confidence-high {
@@ -401,9 +442,24 @@ st.markdown("""
         font-style: italic;
     }
     
-    /* Columns */
-    .stColumns {
-        gap: 1rem !important;
+    /* Columns - proper spacing */
+    .row-widget.stHorizontal {
+        gap: 1.5rem !important;
+    }
+
+    /* Crisis alert box enhancement */
+    .crisis-phone {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Plotly chart container */
+    .js-plotly-plot {
+        border-radius: 15px;
+        overflow: hidden;
     }
 
     </style>
@@ -493,8 +549,8 @@ def create_sentiment_gauge(prob):
         mode="gauge+number",
         value=intensity * 100,
         domain={'x': [0, 1], 'y': [0, 1]},
-        title={'text': f"{sentiment} Sentiment Intensity", 'font': {'color': 'white', 'size': 20}},
-        number={'suffix': "%", 'font': {'color': 'white', 'size': 40}},
+        title={'text': f"{sentiment} Sentiment Intensity", 'font': {'color': 'white', 'size': 18}},
+        number={'suffix': "%", 'font': {'color': 'white', 'size': 36}},
         gauge={
             'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "white"},
             'bar': {'color': color},
@@ -518,7 +574,8 @@ def create_sentiment_gauge(prob):
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
         font={'color': 'white'},
-        height=300
+        height=280,
+        margin=dict(l=20, r=20, t=40, b=20)
     )
     
     return fig
@@ -527,17 +584,52 @@ def create_sentiment_gauge(prob):
 with st.container():
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
-    # 3 columns
-    colA, colB, colC = st.columns([1.15, 1.35, 1.05])
+    # 3 columns with adjusted ratios
+    colA, colB, colC = st.columns([1.1, 1.4, 1.1])
 
     # safe default so right-side expander won't crash before first analysis
     is_high_risk = False
 
     # =========================
+    # COLUMN A (Left): Input + Samples + Buttons
+    # =========================
+    with colA:
+        st.markdown("## 🧠 Suicidal Tweet Detector")
+        st.markdown("""
+        This tool uses an LSTM model to analyze the emotional tone of tweets and detect possible suicidal ideation.  
+        _Enter a tweet below to begin._
+        """, unsafe_allow_html=True)
+
+        with st.expander("✨ Try Sample Tweets"):
+            st.markdown("**Click a button to test:**")
+            for label, tweet in SAMPLE_TWEETS.items():
+                if st.button(label, key=f"sample_{label}", use_container_width=True):
+                    st.session_state.user_input = tweet
+                    st.session_state["text_area"] = tweet
+                    st.session_state.should_analyze = True
+                    st.rerun()
+
+        user_input = st.text_area(
+            "📝 Type your tweet here:",
+            height=160,
+            placeholder="Enter tweet text to analyze...",
+            value=st.session_state.user_input,
+            key="text_area"
+        )
+
+        st.session_state.user_input = user_input
+
+        btn1, btn2 = st.columns([1.5, 1])
+        with btn1:
+            analyze_button = st.button("🔍 Analyze Tweet", use_container_width=True)
+        with btn2:
+            clear_button = st.button("🗑️ Clear", use_container_width=True, on_click=clear_text)
+
+    # =========================
     # COLUMN C (Right): Analytics + Crisis (static panel)
     # =========================
     with colC:
-        with st.expander("📊 Analytics Dashboard"):
+        with st.expander("📊 Analytics Dashboard", expanded=False):
             if st.session_state.analytics['total_analyses'] > 0:
                 col1, col2, col3 = st.columns(3)
                 with col1:
@@ -573,7 +665,9 @@ with st.container():
                     paper_bgcolor='rgba(0,0,0,0)',
                     plot_bgcolor='rgba(0,0,0,0)',
                     font={'color': 'white'},
-                    title_font_size=18
+                    title_font_size=16,
+                    height=250,
+                    margin=dict(l=20, r=20, t=40, b=20)
                 )
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -616,43 +710,6 @@ with st.container():
             """)
 
     # =========================
-    # COLUMN A (Left): Input + Samples + Buttons
-    # =========================
-    with colA:
-        st.markdown("## Suicidal Tweet Detector")
-        st.markdown("""
-        This tool uses an LSTM model to analyze the emotional tone of tweets and detect possible suicidal ideation.  
-        _Enter a tweet below to begin._
-        """, unsafe_allow_html=True)
-
-        with st.expander(" Try Sample Tweets"):
-            st.markdown("Click a button to test with example tweets:")
-            cols = st.columns(2)
-            for idx, (label, tweet) in enumerate(SAMPLE_TWEETS.items()):
-                with cols[idx]:
-                    if st.button(label, key=f"sample_{idx}", use_container_width=True):
-                        st.session_state.user_input = tweet
-                        st.session_state["text_area"] = tweet
-                        st.session_state.should_analyze = True
-                        st.rerun()
-
-        user_input = st.text_area(
-            "Type your tweet here:",
-            height=180,
-            placeholder="Enter tweet text to analyze...",
-            value=st.session_state.user_input,
-            key="text_area"
-        )
-
-        st.session_state.user_input = user_input
-
-        btn1, btn2 = st.columns([2, 1])
-        with btn1:
-            analyze_button = st.button("🔍 Analyze Tweet", use_container_width=True)
-        with btn2:
-            clear_button = st.button("🗑️ Clear", use_container_width=True, on_click=clear_text)
-
-    # =========================
     # COLUMN B (Middle): Results
     # =========================
     with colB:
@@ -675,14 +732,12 @@ with st.container():
                     update_analytics(prob, st.session_state.user_input)
 
                 if prob < 0.5:
-                    label = " Suicidal / Negative"
-                    emoji = "🔴"
+                    label = "🔴 Suicidal / Negative"
                     color = "#ff6b6b"
                     risk_level = "HIGH RISK"
                     is_high_risk = True
                 else:
-                    label = " Non-Suicidal / Positive"
-                    emoji = "🟢"
+                    label = "🟢 Non-Suicidal / Positive"
                     color = "#51cf66"
                     risk_level = "LOW RISK"
                     is_high_risk = False
@@ -705,29 +760,31 @@ with st.container():
                     c1, c2, c3 = st.columns(3)
                     with c1:
                         st.markdown("""
-                        **🇰🇪 Kenya**  
-                        📞 1199  
+                        <div class="crisis-phone">
+                        <strong>🇰🇪 Kenya</strong><br>
+                        📞 1199<br>
                         📞 +254 722 178 177
-                        """)
+                        </div>
+                        """, unsafe_allow_html=True)
                     with c2:
                         st.markdown("""
-                        **🇺🇸 US**  
-                        📞 988  
+                        <div class="crisis-phone">
+                        <strong>🇺🇸 US</strong><br>
+                        📞 988<br>
                         💬 Text HOME to 741741
-                        """)
+                        </div>
+                        """, unsafe_allow_html=True)
                     with c3:
                         st.markdown("""
-                        **🇬🇧 UK**  
-                        📞 116 123  
+                        <div class="crisis-phone">
+                        <strong>🇬🇧 UK</strong><br>
+                        📞 116 123<br>
                         (Samaritans)
-                        """)
+                        </div>
+                        """, unsafe_allow_html=True)
 
                 st.markdown('<div class="result-card">', unsafe_allow_html=True)
 
-                st.markdown(
-                    f'<div style="text-align: center; font-size: 4rem; margin: 1rem 0;">{emoji}</div>',
-                    unsafe_allow_html=True
-                )
                 st.markdown(
                     f'<h2 style="color: {color}; text-align: center; margin: 1rem 0;">{label}</h2>',
                     unsafe_allow_html=True
@@ -758,7 +815,7 @@ with st.container():
                             border-radius:999px;
                             background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);
                             color:#0b1727;
-                            font-size:15px;
+                            font-size:14px;
                             font-weight:600;
                             box-shadow:0 6px 20px rgba(67,233,123,0.5);
                         ">
@@ -781,8 +838,8 @@ Latency: {elapsed_ms:.1f}ms
 Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}
 """
 
-                st.text_area("Result summary (copy this):", result_text, height=180)
-                st.download_button("📄 Download Result", result_text, file_name="analysis.txt")
+                st.text_area("📋 Result summary (copy this):", result_text, height=140)
+                st.download_button("📄 Download Result", result_text, file_name="analysis.txt", use_container_width=True)
 
                 if prob < 0.5:
                     st.info("⚠️ **Important**: This tool is for informational purposes only. If you or someone you know is in crisis, please seek help immediately.")
