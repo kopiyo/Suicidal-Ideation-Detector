@@ -594,13 +594,13 @@ with st.container():
     # COLUMN A (Left): Input + Samples + Buttons
     # =========================
     with colA:
-        st.markdown("## 🧠 Suicidal Tweet Detector")
+        st.markdown("## Suicidal Tweet Detector")
         st.markdown("""
         This tool uses an LSTM model to analyze the emotional tone of tweets and detect possible suicidal ideation.  
         _Enter a tweet below to begin._
         """, unsafe_allow_html=True)
 
-        with st.expander("✨ Try Sample Tweets"):
+        with st.expander(" Try Sample Tweets"):
             st.markdown("**Click a button to test:**")
             for label, tweet in SAMPLE_TWEETS.items():
                 if st.button(label, key=f"sample_{label}", use_container_width=True):
@@ -610,7 +610,7 @@ with st.container():
                     st.rerun()
 
         user_input = st.text_area(
-            "📝 Type your tweet here:",
+            " Type your tweet here:",
             height=160,
             placeholder="Enter tweet text to analyze...",
             value=st.session_state.user_input,
