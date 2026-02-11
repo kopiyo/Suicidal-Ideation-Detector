@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import numpy as np
 import time
+from datetime import datetime
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
 
@@ -176,6 +177,16 @@ st.markdown("""
         backdrop-filter: blur(10px);
         padding: 1rem 1.2rem !important;
     }
+    
+    /* Success boxes */
+    .stSuccess {
+        background-color: rgba(76, 175, 80, 0.18) !important;
+        color: #fff !important;
+        border-left: 5px solid #4caf50 !important;
+        border-radius: 12px !important;
+        backdrop-filter: blur(10px);
+        padding: 1rem 1.2rem !important;
+    }
 
     /* Spinner */
     .stSpinner > div {
@@ -312,6 +323,32 @@ st.markdown("""
     .stColumns {
         gap: 1rem !important;
     }
+    
+    /* Character counter */
+    .char-counter {
+        text-align: right;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+        margin-top: -0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Copy button styling */
+    .copy-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+    }
+    
+    .copy-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
 
     </style>
 """, unsafe_allow_html=True)
@@ -323,10 +360,12 @@ SAMPLE_TWEETS = {
 }
 
 # Initialize session state
-if 'user_input' not in st.session_state:
-    st.session_state.user_input = ""
-if 'should_analyze' not in st.session_state:
-    st.session_state.should_analyze = False
+if 'tweet_text' not in st.session_state:
+    st.session_state.tweet_text = ""
+if 'analysis_done' not in st.session_state:
+    st.session_state.analysis_done = False
+if 'last_result' not in st.session_state:
+    st.session_state.last_result = None
 
 # Load model & tokenizer
 @st.cache_resource
@@ -343,6 +382,17 @@ def load_model_and_tokenizer():
         st.stop()
 
 model, tokenizer = load_model_and_tokenizer()
+
+# Function to perform analysis
+def analyze_tweet(text):
+    start_time = time.time()
+    sequence = tokenizer.texts_to_sequences([text])
+    padded = pad_sequences(sequence, maxlen=100)
+    prob = model.predict(padded, verbose=0)[0][0]
+    end_time = time.time()
+    elapsed_ms = (end_time - start_time) * 1000
+    
+    return prob, elapsed_ms
 
 # Main app layout
 with st.container():
@@ -362,122 +412,140 @@ with st.container():
         for idx, (label, tweet) in enumerate(SAMPLE_TWEETS.items()):
             with cols[idx]:
                 if st.button(label, key=f"sample_{idx}", use_container_width=True):
-                    st.session_state.user_input = tweet
-                    st.session_state.should_analyze = True
+                    st.session_state.tweet_text = tweet
                     st.rerun()
 
-    # Input with session state
+    # Input textarea
     user_input = st.text_area(
         "Type your tweet here:", 
         height=150, 
         placeholder="Enter tweet text to analyze...",
-        value=st.session_state.user_input,
-        key="text_area"
+        value=st.session_state.tweet_text,
+        max_chars=280,
+        key="tweet_input"
     )
     
-    # Update session state when user types
-    st.session_state.user_input = user_input
+    # Character counter
+    char_count = len(user_input)
+    st.markdown(f'<div class="char-counter">{char_count}/280 characters</div>', unsafe_allow_html=True)
 
     # Button row with analyze and clear - SMALLER CLEAR BUTTON
-    col1, col2 = st.columns([2, 1])
+    col1, col2 = st.columns([4, 1])
     
     with col1:
-        analyze_button = st.button("🔍 Analyze Tweet", use_container_width=True)
+        analyze_button = st.button("🔍 Analyze Tweet", use_container_width=True, type="primary")
     
     with col2:
-        clear_button = st.button("🗑️ Clear", use_container_width=True)
-    
-    # Handle clear button
-    if clear_button:
-        st.session_state.user_input = ""
-        st.session_state.should_analyze = False
-        st.rerun()
+        if st.button("🗑️", use_container_width=True, help="Clear text"):
+            st.session_state.tweet_text = ""
+            st.session_state.analysis_done = False
+            st.session_state.last_result = None
+            st.rerun()
 
-    # Analysis logic - triggered by button OR sample tweet
-    if analyze_button or st.session_state.should_analyze:
-        st.session_state.should_analyze = False  # Reset flag
-        
-        if st.session_state.user_input.strip() == "":
+    # Analysis logic
+    if analyze_button:
+        if user_input.strip() == "":
             st.warning("⚠️ Please enter some text before analyzing.")
         else:
             with st.spinner("🤖 Analyzing tweet…"):
-                start_time = time.time()
+                prob, elapsed_ms = analyze_tweet(user_input)
+                
+                # Store in session state
+                st.session_state.analysis_done = True
+                st.session_state.last_result = {
+                    'text': user_input,
+                    'prob': prob,
+                    'elapsed_ms': elapsed_ms,
+                    'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
 
-                sequence = tokenizer.texts_to_sequences([st.session_state.user_input])
-                padded = pad_sequences(sequence, maxlen=100)
-                prob = model.predict(padded, verbose=0)[0][0]
+    # Display results if analysis is done
+    if st.session_state.analysis_done and st.session_state.last_result:
+        result = st.session_state.last_result
+        prob = result['prob']
+        elapsed_ms = result['elapsed_ms']
+        
+        # Determine result and confidence level
+        if prob < 0.5:
+            label = "🟥 Suicidal / Negative"
+            emoji = "🔴"
+            color = "#ff6b6b"
+            risk_level = "HIGH RISK"
+        else:
+            label = "🟩 Non-Suicidal / Positive"
+            emoji = "🟢"
+            color = "#51cf66"
+            risk_level = "LOW RISK"
+        
+        # Confidence level
+        confidence_pct = prob if prob >= 0.5 else (1 - prob)
+        if confidence_pct >= 0.8:
+            conf_label = "High Confidence"
+            conf_class = "confidence-high"
+        elif confidence_pct >= 0.6:
+            conf_label = "Medium Confidence"
+            conf_class = "confidence-medium"
+        else:
+            conf_label = "Low Confidence"
+            conf_class = "confidence-low"
 
-                end_time = time.time()
-                elapsed_ms = (end_time - start_time) * 1000
-
-            # Determine result and confidence level
-            if prob < 0.5:
-                label = "🟥 Suicidal / Negative"
-                emoji = "🔴"
-                color = "#ff6b6b"
-                risk_level = "HIGH RISK"
-            else:
-                label = "🟩 Non-Suicidal / Positive"
-                emoji = "🟢"
-                color = "#51cf66"
-                risk_level = "LOW RISK"
-            
-            # Confidence level
-            confidence_pct = prob if prob >= 0.5 else (1 - prob)
-            if confidence_pct >= 0.8:
-                conf_label = "High Confidence"
-                conf_class = "confidence-high"
-            elif confidence_pct >= 0.6:
-                conf_label = "Medium Confidence"
-                conf_class = "confidence-medium"
-            else:
-                conf_label = "Low Confidence"
-                conf_class = "confidence-low"
-
-            # Display results
-            st.markdown('<div class="result-card">', unsafe_allow_html=True)
-            
-            st.markdown(f'<div style="text-align: center; font-size: 4rem; margin: 1rem 0;">{emoji}</div>', unsafe_allow_html=True)
-            st.markdown(f'<h2 style="color: {color}; text-align: center; margin: 1rem 0;">{label}</h2>', unsafe_allow_html=True)
-            
-            st.markdown("---")
-            
-            # Risk level indicator
-            st.markdown(f"**Risk Assessment:** {risk_level}")
-            st.progress(int(prob * 100) if prob >= 0.5 else int((1 - prob) * 100))
-            
-            # Confidence badge
-            st.markdown(
-                f'<div style="text-align: center; margin: 1rem 0;"><span class="confidence-badge {conf_class}">{conf_label}: {confidence_pct:.1%}</span></div>',
-                unsafe_allow_html=True
-            )
-            
-            # Response time
-            st.markdown(
-                f"""
-                <div style="text-align: center; margin-top: 1.5rem;">
-                    <div style="
-                        display:inline-block;
-                        padding:10px 24px;
-                        border-radius:999px;
-                        background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);
-                        color:#0b1727;
-                        font-size:15px;
-                        font-weight:600;
-                        box-shadow:0 6px 20px rgba(67,233,123,0.5);
-                    ">
-                        ⚡ Analyzed in {elapsed_ms:.1f}ms
-                    </div>
+        # Display results
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        
+        st.markdown(f'<div style="text-align: center; font-size: 4rem; margin: 1rem 0;">{emoji}</div>', unsafe_allow_html=True)
+        st.markdown(f'<h2 style="color: {color}; text-align: center; margin: 1rem 0;">{label}</h2>', unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # Risk level indicator
+        st.markdown(f"**Risk Assessment:** {risk_level}")
+        st.progress(int(prob * 100) if prob >= 0.5 else int((1 - prob) * 100))
+        
+        # Confidence badge
+        st.markdown(
+            f'<div style="text-align: center; margin: 1rem 0;"><span class="confidence-badge {conf_class}">{conf_label}: {confidence_pct:.1%}</span></div>',
+            unsafe_allow_html=True
+        )
+        
+        # Response time
+        st.markdown(
+            f"""
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <div style="
+                    display:inline-block;
+                    padding:10px 24px;
+                    border-radius:999px;
+                    background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);
+                    color:#0b1727;
+                    font-size:15px;
+                    font-weight:600;
+                    box-shadow:0 6px 20px rgba(67,233,123,0.5);
+                ">
+                    ⚡ Analyzed in {elapsed_ms:.1f}ms
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
-            
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-            # Crisis resources if high risk
-            if prob < 0.5:
-                st.info("⚠️ **Important**: This tool is for informational purposes only. If you or someone you know is in crisis, please seek help immediately.")
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        # Copy result button
+        result_text = f"""Analysis Result:
+Text: {result['text']}
+Classification: {label}
+Risk Level: {risk_level}
+Confidence: {conf_label} ({confidence_pct:.1%})
+Analysis Time: {elapsed_ms:.1f}ms
+Timestamp: {result['timestamp']}"""
+        
+        if st.button("📋 Copy Result to Clipboard", use_container_width=False):
+            st.code(result_text, language=None)
+            st.success("✅ Result displayed above - you can now copy it!")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Crisis resources if high risk
+        if prob < 0.5:
+            st.info("⚠️ **Important**: This tool is for informational purposes only. If you or someone you know is in crisis, please seek help immediately.")
 
     # Crisis Resources Section
     with st.expander("🆘 Crisis Resources & Support"):
@@ -487,14 +555,14 @@ with st.container():
         **🇺🇸 United States:**
         - **National Suicide Prevention Lifeline:** 988
         - **Crisis Text Line:** Text HOME to 741741
-
+        
+        **🇬🇧 United Kingdom:**
+        - **Samaritans:** 116 123
+        
         **🇰🇪 Kenya:**
         - **Kenya Red Cross:** 1199
         - **Befrienders Kenya:** +254 722 178 177
         - **Lifeline Kenya:** +254 20 272 1806
-        
-        **🇬🇧 United Kingdom:**
-        - **Samaritans:** 116 123
         
         **🌍 International:**
         - **International Association for Suicide Prevention:** [findahelpline.com](https://findahelpline.com)
