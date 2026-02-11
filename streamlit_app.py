@@ -352,7 +352,7 @@ with st.container():
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
     
     # Header
-    st.markdown("## 🧠 Suicidal Tweet Detector")
+    st.markdown("## Suicidal Tweet Detector")
     st.markdown("""
     This tool uses an LSTM model to analyze the emotional tone of tweets and detect possible suicidal ideation.  
     _Enter a tweet below to begin._
