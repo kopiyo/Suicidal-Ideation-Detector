@@ -75,26 +75,20 @@ st.markdown("""
 @st.cache_resource
 def load_model_and_tokenizer():
     try:
-        # Load model without compiling to avoid version issues
-        model = load_model("lstm_model.keras", compile=False)
-        
-        # Recompile the model
-        model.compile(
-            optimizer='adam',
-            loss='binary_crossentropy',
-            metrics=['accuracy']
-        )
+        # Load the model - this works with both Keras 2 and Keras 3
+        model = load_model("lstm_model.keras")
         
         # Load tokenizer
         with open("tokenizer.pkl", "rb") as f:
             tokenizer = pickle.load(f)
         
+        st.success("✅ Model and tokenizer loaded successfully!")
         return model, tokenizer
         
     except Exception as e:
-        st.error(f"Error loading model or tokenizer: {str(e)}")
-        st.info("Please check that 'lstm_model.keras' and 'tokenizer.pkl' exist in your repository.")
-        raise
+        st.error(f"❌ Error loading model or tokenizer: {str(e)}")
+        st.info("Make sure 'lstm_model.keras' and 'tokenizer.pkl' are in your repository.")
+        st.stop()
 
 model, tokenizer = load_model_and_tokenizer()
 
@@ -115,7 +109,6 @@ with st.container():
         if user_input.strip() == "":
             st.warning("Please enter some text before analyzing.")
         else:
-            # Show loading spinner + measure time
             with st.spinner("Analyzing tweet…"):
                 start_time = time.time()
 
@@ -133,7 +126,6 @@ with st.container():
             st.progress(int(prob * 100))
             st.markdown(f"**Confidence:** `{prob:.2%}`")
 
-            # Colorful response-time badge
             st.markdown(
                 f"""
                 <div style="
@@ -153,6 +145,5 @@ with st.container():
                 unsafe_allow_html=True
             )
 
-    # Footer
     st.markdown('<div class="footer">Built with Streamlit + LSTM • Stay safe, stay kind</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
