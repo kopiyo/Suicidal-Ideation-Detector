@@ -115,14 +115,6 @@ st.markdown("""
         font-style: italic;
     }
 
-    /* Button container for side-by-side buttons */
-    .button-row {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin: 2rem 0;
-    }
-
     /* Primary Button - gradient and hover effect */
     .stButton {
         text-align: center;
@@ -324,12 +316,17 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Sample tweets for quick testing
+# Sample tweets for quick testing - ONLY 2 OPTIONS
 SAMPLE_TWEETS = {
     "Positive 😊": "Just got promoted at work! Feeling blessed and grateful for this opportunity.",
-    "Negative 😔": "I feel like nobody cares anymore. What's the point of trying?",
-    "Neutral 😐": "Going to the grocery store to buy some milk and eggs."
+    "Negative 😔": "I feel like nobody cares anymore. What's the point of trying?"
 }
+
+# Initialize session state
+if 'user_input' not in st.session_state:
+    st.session_state.user_input = ""
+if 'should_analyze' not in st.session_state:
+    st.session_state.should_analyze = False
 
 # Load model & tokenizer
 @st.cache_resource
@@ -352,53 +349,61 @@ with st.container():
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
     
     # Header
-    st.markdown("## Suicidal Tweet Detector")
+    st.markdown("## 🧠 Suicidal Tweet Detector")
     st.markdown("""
     This tool uses an LSTM model to analyze the emotional tone of tweets and detect possible suicidal ideation.  
     _Enter a tweet below to begin._
     """, unsafe_allow_html=True)
 
-    # Quick sample tweets section
-    with st.expander(" Try Sample Tweets"):
+    # Quick sample tweets section - ONLY 2 BUTTONS
+    with st.expander("💡 Try Sample Tweets"):
         st.markdown("Click a button to test with example tweets:")
-        cols = st.columns(3)
+        cols = st.columns(2)
         for idx, (label, tweet) in enumerate(SAMPLE_TWEETS.items()):
             with cols[idx]:
                 if st.button(label, key=f"sample_{idx}", use_container_width=True):
-                    st.session_state.sample_tweet = tweet
+                    st.session_state.user_input = tweet
+                    st.session_state.should_analyze = True
+                    st.rerun()
 
-    # Input with clear functionality
-    default_value = st.session_state.get('sample_tweet', '')
+    # Input with session state
     user_input = st.text_area(
         "Type your tweet here:", 
         height=150, 
         placeholder="Enter tweet text to analyze...",
-        value=default_value
+        value=st.session_state.user_input,
+        key="text_area"
     )
     
-    # Clear the sample tweet after it's loaded
-    if 'sample_tweet' in st.session_state:
-        del st.session_state.sample_tweet
+    # Update session state when user types
+    st.session_state.user_input = user_input
 
-    # Button row with analyze and clear
-    col1, col2 = st.columns([3, 1])
+    # Button row with analyze and clear - SMALLER CLEAR BUTTON
+    col1, col2 = st.columns([4, 1])
     
     with col1:
         analyze_button = st.button("🔍 Analyze Tweet", use_container_width=True)
     
     with col2:
-        if st.button("🗑️ Clear", use_container_width=True):
-            st.rerun()
+        clear_button = st.button("🗑️ Clear", use_container_width=True)
+    
+    # Handle clear button
+    if clear_button:
+        st.session_state.user_input = ""
+        st.session_state.should_analyze = False
+        st.rerun()
 
-    # Analysis logic
-    if analyze_button:
-        if user_input.strip() == "":
+    # Analysis logic - triggered by button OR sample tweet
+    if analyze_button or st.session_state.should_analyze:
+        st.session_state.should_analyze = False  # Reset flag
+        
+        if st.session_state.user_input.strip() == "":
             st.warning("⚠️ Please enter some text before analyzing.")
         else:
             with st.spinner("🤖 Analyzing tweet…"):
                 start_time = time.time()
 
-                sequence = tokenizer.texts_to_sequences([user_input])
+                sequence = tokenizer.texts_to_sequences([st.session_state.user_input])
                 padded = pad_sequences(sequence, maxlen=100)
                 prob = model.predict(padded, verbose=0)[0][0]
 
@@ -407,12 +412,12 @@ with st.container():
 
             # Determine result and confidence level
             if prob < 0.5:
-                label = " Suicidal / High Risk"
+                label = "🟥 Suicidal / Negative"
                 emoji = "🔴"
                 color = "#ff6b6b"
                 risk_level = "HIGH RISK"
             else:
-                label = " Non-Suicidal / Low Risk"
+                label = "🟩 Non-Suicidal / Positive"
                 emoji = "🟢"
                 color = "#51cf66"
                 risk_level = "LOW RISK"
@@ -482,6 +487,11 @@ with st.container():
         **🇺🇸 United States:**
         - **National Suicide Prevention Lifeline:** 988
         - **Crisis Text Line:** Text HOME to 741741
+
+        **🇰🇪 Kenya:**
+        - **Kenya Red Cross:** 1199
+        - **Befrienders Kenya:** +254 722 178 177
+        - **Lifeline Kenya:** +254 20 272 1806
         
         **🇬🇧 United Kingdom:**
         - **Samaritans:** 116 123
