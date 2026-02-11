@@ -21,24 +21,37 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* ── Hide Streamlit chrome ── */
+/* ── Kill ALL Streamlit top chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
 .stAlert { display: none !important; }
+[data-testid="stHeader"]          { display: none !important; }
+[data-testid="stToolbar"]         { display: none !important; }
+[data-testid="stDecoration"]      { display: none !important; }
+[data-testid="stStatusWidget"]    { display: none !important; }
+.reportview-container .main .block-container { padding-top: 0 !important; }
+div[data-testid="stAppViewBlockContainer"] > div:first-child { padding-top: 0 !important; }
 
-/* ── Full-viewport single-page lock ── */
-html, body, [data-testid="stAppViewContainer"] {
+/* ── Viewport lock ── */
+html, body {
     height: 100vh;
     overflow: hidden;
+    margin: 0; padding: 0;
+}
+[data-testid="stAppViewContainer"] {
+    height: 100vh;
+    overflow: hidden;
+    padding-top: 0 !important;
 }
 
 /* ── Animated gradient background ── */
 .stApp {
-    background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+    background: linear-gradient(-45deg, #4a1c8c, #764ba2, #a855f7, #6366f1);
     background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+    animation: gradientShift 18s ease infinite;
+    font-family: 'Inter', sans-serif;
     height: 100vh;
     overflow: hidden;
+    padding-top: 0 !important;
 }
 @keyframes gradientShift {
     0%   { background-position: 0%   50%; }
@@ -46,510 +59,511 @@ html, body, [data-testid="stAppViewContainer"] {
     100% { background-position: 0%   50%; }
 }
 
-/* ── Main block: tight padding, no overflow ── */
+/* ── Block container: zero top padding ── */
 .main .block-container {
     max-width: 100% !important;
-    padding: 0.6rem 1.2rem !important;
+    padding: 0.4rem 0.8rem 0.4rem 0.8rem !important;
     margin: 0 !important;
     height: 100vh;
     overflow: hidden;
 }
 
-/* ── Each column scrolls independently ── */
+/* ── Columns: fixed height, scroll inside ── */
 [data-testid="column"] {
-    padding: 0 0.5rem !important;
-    height: calc(100vh - 1.4rem);
+    padding: 0 0.35rem !important;
+    height: calc(100vh - 1rem);
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.3) transparent;
+    scrollbar-color: rgba(255,255,255,0.25) transparent;
 }
-[data-testid="column"]::-webkit-scrollbar { width: 4px; }
+[data-testid="column"]::-webkit-scrollbar { width: 3px; }
 [data-testid="column"]::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.25);
     border-radius: 4px;
 }
 
-/* ── Glass panel per column ── */
+/* ── Glass panel ── */
 [data-testid="column"]:nth-of-type(1),
 [data-testid="column"]:nth-of-type(2),
 [data-testid="column"]:nth-of-type(3) {
-    background: rgba(255,255,255,0.09);
-    border-radius: 18px;
-    padding: 1rem !important;
-    border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 0.8rem 0.9rem !important;
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
 }
 
 /* ── Typography ── */
-h1, h2, h3 {
+h1, h2, h3, h4 {
     color: #fff !important;
     font-weight: 700 !important;
-    text-shadow: 1px 1px 6px rgba(0,0,0,0.3);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.25);
 }
-h2 { font-size: 1.4rem !important; margin: 0.3rem 0 0.5rem !important; text-align: center; line-height: 1.3; }
-h3 { font-size: 0.95rem !important; margin: 0.5rem 0 0.3rem !important; text-align: center; }
-p, li { color: rgba(255,255,255,0.93) !important; font-size: 0.82rem; line-height: 1.5; margin: 0.1rem 0; }
+h2 { font-size: 1.15rem !important; margin: 0 0 0.35rem !important; line-height: 1.25; }
+h3 { font-size: 0.88rem !important; margin: 0.35rem 0 0.25rem !important; }
+h4 { font-size: 0.82rem !important; margin: 0.2rem 0 !important; }
+p, li { color: rgba(255,255,255,0.9) !important; font-size: 0.78rem; line-height: 1.5; margin: 0.08rem 0; }
 strong { color: #fff !important; font-weight: 600 !important; }
-em     { color: rgba(255,255,255,0.8) !important; font-style: italic; }
+em     { color: rgba(255,255,255,0.75) !important; font-style: italic; }
+a      { color: #d8b4fe !important; }
 
-.app-title { text-align: center; margin-bottom: 0.4rem; }
-.app-title h2 { font-size: 1.25rem !important; margin: 0 !important; }
-.app-subtitle {
-    font-size: 0.75rem; color: rgba(255,255,255,0.8) !important;
-    text-align: center; line-height: 1.4; margin-bottom: 0.6rem;
+/* ── App title ── */
+.app-header {
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+.app-header-icon { font-size: 1.3rem; }
+.app-header-title { font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1.2; }
+.app-subtitle { font-size: 0.72rem; color: rgba(255,255,255,0.75); line-height: 1.4; margin-bottom: 0.5rem; }
+
+/* ── Divider ── */
+.divider {
+    border: none; border-top: 1px solid rgba(255,255,255,0.12);
+    margin: 0.5rem 0;
 }
 
 /* ── Text area ── */
 .stTextArea label {
     color: #fff !important; font-weight: 600 !important;
-    font-size: 0.82rem !important; margin-bottom: 0.2rem !important;
+    font-size: 0.78rem !important; margin-bottom: 0.15rem !important;
 }
 .stTextArea textarea {
-    background: rgba(0,0,0,0.32) !important; color: #fff !important;
-    border: 1.5px solid rgba(255,255,255,0.25) !important;
-    border-radius: 14px !important; font-size: 0.82rem !important;
-    padding: 0.7rem !important; backdrop-filter: blur(8px);
-    transition: all 0.3s ease; line-height: 1.5; resize: none;
+    background: rgba(0,0,0,0.28) !important; color: #fff !important;
+    border: 1.5px solid rgba(255,255,255,0.22) !important;
+    border-radius: 12px !important; font-size: 0.78rem !important;
+    padding: 0.6rem 0.75rem !important; line-height: 1.5; resize: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
 }
 .stTextArea textarea:focus {
-    border-color: rgba(255,255,255,0.5) !important;
-    box-shadow: 0 0 18px rgba(255,255,255,0.25) !important;
-    background: rgba(0,0,0,0.42) !important; outline: none !important;
+    border-color: rgba(200,150,255,0.7) !important;
+    box-shadow: 0 0 14px rgba(200,150,255,0.3) !important;
+    background: rgba(0,0,0,0.38) !important; outline: none !important;
 }
-.stTextArea textarea::placeholder { color: rgba(255,255,255,0.45) !important; font-style: italic; }
+.stTextArea textarea::placeholder { color: rgba(255,255,255,0.38) !important; font-style: italic; }
 
 /* ── Buttons ── */
-.stButton { text-align: center; margin: 0.3rem 0; }
+.stButton { margin: 0.25rem 0; }
 .stButton > button {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
-    color: white !important; font-weight: 600 !important;
-    padding: 0.4rem 1rem !important; border-radius: 50px !important;
-    border: none !important; font-size: 0.8rem !important;
-    box-shadow: 0 5px 15px rgba(245,87,108,0.4) !important;
-    transition: all 0.3s ease !important; width: 100%; height: 40px;
+    background: linear-gradient(135deg, #c084fc 0%, #f472b6 100%) !important;
+    color: #fff !important; font-weight: 600 !important;
+    padding: 0 1rem !important; border-radius: 50px !important;
+    border: none !important; font-size: 0.76rem !important;
+    box-shadow: 0 4px 14px rgba(196,100,252,0.4) !important;
+    transition: all 0.25s ease !important;
+    width: 100%; height: 36px;
 }
-.stButton > button:hover { transform: translateY(-2px) !important; box-shadow: 0 8px 25px rgba(245,87,108,0.6) !important; }
+.stButton > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 7px 20px rgba(196,100,252,0.6) !important;
+}
 .stDownloadButton > button {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
-    color: white !important; font-weight: 600 !important;
-    padding: 0.4rem 1rem !important; border-radius: 50px !important;
-    border: none !important; font-size: 0.8rem !important;
-    box-shadow: 0 5px 15px rgba(245,87,108,0.4) !important;
-    width: 100%; height: 40px;
+    background: linear-gradient(135deg, #c084fc 0%, #f472b6 100%) !important;
+    color: #fff !important; font-weight: 600 !important;
+    border-radius: 50px !important; border: none !important;
+    font-size: 0.76rem !important; width: 100%; height: 36px;
+    box-shadow: 0 4px 14px rgba(196,100,252,0.4) !important;
 }
 
 /* ── Expander ── */
 .streamlit-expanderHeader {
-    background-color: rgba(255,255,255,0.13) !important; border-radius: 10px !important;
-    color: white !important; font-weight: 600 !important;
-    padding: 0.45rem 0.8rem !important; font-size: 0.8rem !important;
+    background: rgba(255,255,255,0.1) !important;
+    border-radius: 9px !important; color: #fff !important;
+    font-weight: 600 !important; padding: 0.38rem 0.7rem !important;
+    font-size: 0.76rem !important; border: 1px solid rgba(255,255,255,0.12) !important;
 }
-.streamlit-expanderHeader:hover { background-color: rgba(255,255,255,0.2) !important; }
+.streamlit-expanderHeader:hover { background: rgba(255,255,255,0.17) !important; }
 .streamlit-expanderContent {
-    background-color: rgba(255,255,255,0.07) !important;
-    border-radius: 0 0 10px 10px !important; padding: 0.6rem !important;
+    background: rgba(255,255,255,0.06) !important;
+    border-radius: 0 0 9px 9px !important; padding: 0.55rem !important;
 }
 
-/* ── Crisis phone card ── */
-.crisis-phone {
-    background: rgba(255,255,255,0.1); border-radius: 10px;
-    padding: 0.55rem 0.65rem; margin: 0.25rem 0;
-    border: 1px solid rgba(255,255,255,0.18);
-    font-size: 0.76rem; line-height: 1.6;
+/* ── Crisis card ── */
+.crisis-card {
+    background: rgba(255,255,255,0.09);
+    border-radius: 10px; padding: 0.5rem 0.6rem;
+    margin: 0.2rem 0; border: 1px solid rgba(255,255,255,0.15);
+    font-size: 0.74rem; line-height: 1.65;
 }
-.crisis-phone a { color: #f093fb !important; }
+.crisis-card a { color: #d8b4fe !important; }
 
-/* ── Stat cards ── */
-.stat-card {
-    background: rgba(255,255,255,0.13); border-radius: 12px;
-    padding: 0.55rem 0.3rem; text-align: center;
-    border: 1px solid rgba(255,255,255,0.18); margin: 0.15rem;
+/* ── Immediate support pill cards ── */
+.support-pill {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 0.42rem 0.55rem;
+    margin: 0.15rem 0; border: 1px solid rgba(255,255,255,0.15);
+    font-size: 0.72rem; line-height: 1.6;
+    text-align: center;
 }
-.stat-number { font-size: 1.35rem; font-weight: 700; color: #fff; margin: 0.1rem 0; }
-.stat-label  { font-size: 0.65rem; color: rgba(255,255,255,0.72); text-transform: uppercase; letter-spacing: 0.8px; }
+.support-pill strong { display: block; margin-bottom: 0.15rem; font-size: 0.74rem; }
 
 /* ── Result card ── */
 .result-card {
-    background: rgba(255,255,255,0.13); border-radius: 16px;
-    padding: 0.7rem 0.9rem; margin: 0.4rem 0;
-    backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.22);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.12);
-    animation: slideUp 0.4s ease-out;
+    background: rgba(255,255,255,0.1);
+    border-radius: 14px; padding: 0.65rem 0.8rem;
+    margin: 0.3rem 0; border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+    animation: slideUp 0.35s ease-out;
 }
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Confidence badge ── */
-.confidence-badge {
-    display: inline-block; padding: 0.25rem 0.75rem;
-    border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin: 0.25rem;
+/* ── Stat cards ── */
+.stat-row { display: flex; gap: 0.3rem; margin-bottom: 0.3rem; }
+.stat-card {
+    flex: 1; background: rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 0.45rem 0.3rem;
+    text-align: center; border: 1px solid rgba(255,255,255,0.16);
 }
-.confidence-high   { background: linear-gradient(135deg,#11998e,#38ef7d); color:#fff; }
-.confidence-medium { background: linear-gradient(135deg,#f093fb,#f5576c); color:#fff; }
-.confidence-low    { background: linear-gradient(135deg,#ffd89b,#19547b); color:#fff; }
+.stat-number { font-size: 1.2rem; font-weight: 700; color: #fff; }
+.stat-label  { font-size: 0.6rem; color: rgba(255,255,255,0.68); text-transform: uppercase; letter-spacing: 0.7px; }
+
+/* ── Confidence badge ── */
+.conf-badge {
+    display: inline-block; padding: 0.2rem 0.65rem;
+    border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+}
+.conf-high   { background: linear-gradient(135deg,#10b981,#34d399); color:#fff; }
+.conf-medium { background: linear-gradient(135deg,#c084fc,#f472b6); color:#fff; }
+.conf-low    { background: linear-gradient(135deg,#fbbf24,#1e40af); color:#fff; }
+
+/* ── Risk badge ── */
+.risk-high { color: #fca5a5 !important; font-weight: 700 !important; }
+.risk-low  { color: #86efac !important; font-weight: 700 !important; }
 
 /* ── Progress bar ── */
-.stProgress > div > div > div > div { background: linear-gradient(90deg,#f093fb,#f5576c); border-radius: 8px; height: 9px; }
-.stProgress > div > div { background-color: rgba(255,255,255,0.18); border-radius: 8px; }
+.stProgress > div > div > div > div {
+    background: linear-gradient(90deg,#c084fc,#f472b6);
+    border-radius: 6px; height: 8px;
+}
+.stProgress > div > div { background: rgba(255,255,255,0.15); border-radius: 6px; }
 
 /* ── Alert boxes ── */
 .stWarning {
-    background-color: rgba(255,193,7,0.16) !important; color:#fff !important;
-    border-left: 4px solid #ffc107 !important; border-radius: 10px !important;
-    padding: 0.5rem 0.8rem !important; font-size: 0.78rem;
+    background: rgba(251,191,36,0.14) !important; color:#fff !important;
+    border-left: 3px solid #fbbf24 !important; border-radius: 9px !important;
+    padding: 0.45rem 0.7rem !important; font-size: 0.75rem;
 }
 .stInfo {
-    background-color: rgba(33,150,243,0.16) !important; color:#fff !important;
-    border-left: 4px solid #2196f3 !important; border-radius: 10px !important;
-    padding: 0.5rem 0.8rem !important; font-size: 0.78rem;
+    background: rgba(99,102,241,0.2) !important; color:#fff !important;
+    border-left: 3px solid #818cf8 !important; border-radius: 9px !important;
+    padding: 0.45rem 0.7rem !important; font-size: 0.75rem;
 }
 .stError {
-    background-color: rgba(244,67,54,0.22) !important; color:#fff !important;
-    border-left: 4px solid #f44336 !important; border-radius: 10px !important;
-    padding: 0.5rem 0.8rem !important; font-weight: 600 !important; font-size: 0.78rem;
+    background: rgba(239,68,68,0.2) !important; color:#fff !important;
+    border-left: 3px solid #f87171 !important; border-radius: 9px !important;
+    padding: 0.45rem 0.7rem !important; font-size: 0.75rem; font-weight:600;
 }
-
-/* ── Spinner ── */
-.stSpinner > div { border-top-color: #f5576c !important; }
 
 /* ── Footer ── */
-.footer {
-    text-align: center; font-size: 0.7rem;
-    padding: 0.35rem 0 0.1rem;
-    color: rgba(255,255,255,0.55);
-    border-top: 1px solid rgba(255,255,255,0.12);
-    margin-top: 0.5rem;
+.col-footer {
+    font-size: 0.65rem; color: rgba(255,255,255,0.45);
+    text-align: center; border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 0.35rem; margin-top: 0.4rem;
 }
 
-/* ── Plotly ── */
-.js-plotly-plot { border-radius: 12px; overflow: hidden; }
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-.main-container { animation: fadeInUp 0.5s ease-out; }
+.js-plotly-plot { border-radius: 10px; overflow: hidden; }
 </style>
 """, unsafe_allow_html=True)
 
-# ─── Sample tweets ──────────────────────────────────────────────────────────────
+# ─── Constants ─────────────────────────────────────────────────────────────────
 SAMPLE_TWEETS = {
     "Positive 😊": "Just got promoted at work! Feeling blessed and grateful for this opportunity.",
     "Negative 😔": "I feel like nobody cares anymore. I am so depressed. What's the point of trying?"
 }
 
-# ─── Session state ───────────────────────────────────────────────────────────────
+# ─── Session state ──────────────────────────────────────────────────────────────
 if 'analytics' not in st.session_state:
-    st.session_state.analytics = {
-        'total_analyses': 0, 'positive_count': 0,
-        'negative_count': 0, 'history': []
-    }
+    st.session_state.analytics = {'total_analyses':0,'positive_count':0,'negative_count':0,'history':[]}
 if 'user_input'     not in st.session_state: st.session_state.user_input     = ""
 if 'should_analyze' not in st.session_state: st.session_state.should_analyze = False
 if 'last_result'    not in st.session_state: st.session_state.last_result    = None
 
-# ─── Load model ──────────────────────────────────────────────────────────────────
+# ─── Load model ─────────────────────────────────────────────────────────────────
 @st.cache_resource
 def load_model_and_tokenizer():
     try:
         model = load_model("lstm_model.h5")
-        with open("tokenizer.pkl", "rb") as f:
+        with open("tokenizer.pkl","rb") as f:
             tokenizer = pickle.load(f)
-        st.success("✅ Model loaded!")
         return model, tokenizer
     except Exception as e:
-        st.error(f"❌ {str(e)}")
-        st.stop()
+        st.error(f"❌ {e}"); st.stop()
 
 model, tokenizer = load_model_and_tokenizer()
 
-# ─── Helpers ─────────────────────────────────────────────────────────────────────
+# ─── Helpers ────────────────────────────────────────────────────────────────────
 def clear_text():
     st.session_state.user_input    = ""
     st.session_state["text_area"]  = ""
     st.session_state.should_analyze = False
+    st.session_state.last_result   = None
 
 def update_analytics(prob, text):
-    st.session_state.analytics['total_analyses'] += 1
-    classification = "Positive" if prob >= 0.5 else "Negative"
-    if prob >= 0.5: st.session_state.analytics['positive_count'] += 1
-    else:           st.session_state.analytics['negative_count'] += 1
-    st.session_state.analytics['history'].append({
-        'timestamp':      datetime.now().strftime("%H:%M:%S"),
-        'classification': classification,
-        'probability':    float(prob),
-        'text_preview':   text[:40] + "…" if len(text) > 40 else text
+    a = st.session_state.analytics
+    a['total_analyses'] += 1
+    cls = "Positive" if prob >= 0.5 else "Negative"
+    if prob >= 0.5: a['positive_count'] += 1
+    else:           a['negative_count'] += 1
+    a['history'].append({
+        'ts':  datetime.now().strftime("%H:%M"),
+        'cls': cls, 'prob': float(prob),
+        'txt': text[:38] + "…" if len(text)>38 else text
     })
-    if len(st.session_state.analytics['history']) > 10:
-        st.session_state.analytics['history'] = st.session_state.analytics['history'][-10:]
+    if len(a['history']) > 10: a['history'] = a['history'][-10:]
 
 def run_analysis(text):
-    sequence   = tokenizer.texts_to_sequences([text])
-    padded     = pad_sequences(sequence, maxlen=100)
-    start      = time.time()
-    prob       = model.predict(padded, verbose=0)[0][0]
-    elapsed_ms = (time.time() - start) * 1000
+    seq = tokenizer.texts_to_sequences([text])
+    pad = pad_sequences(seq, maxlen=100)
+    t0  = time.time()
+    prob = model.predict(pad, verbose=0)[0][0]
+    ms   = (time.time()-t0)*1000
     update_analytics(prob, text)
-    return prob, elapsed_ms
+    return float(prob), ms
 
-def create_sentiment_gauge(prob):
-    if prob >= 0.5:
-        intensity = (prob - 0.5) * 2; color = "#51cf66"; sentiment = "Positive"
-    else:
-        intensity = (0.5 - prob) * 2; color = "#ff6b6b"; sentiment = "Negative"
+def gauge(prob):
+    if prob >= 0.5: intensity=(prob-0.5)*2; clr="#34d399"; lbl="Positive"
+    else:           intensity=(0.5-prob)*2;  clr="#f87171"; lbl="Negative"
     fig = go.Figure(go.Indicator(
-        mode="gauge+number", value=intensity * 100,
-        domain={'x': [0,1], 'y': [0,1]},
-        title={'text': f"{sentiment} Intensity", 'font': {'color':'white','size':12}},
-        number={'suffix':"%", 'font':{'color':'white','size':26}},
+        mode="gauge+number", value=intensity*100,
+        domain={'x':[0,1],'y':[0,1]},
+        title={'text':f"{lbl} Intensity",'font':{'color':'white','size':11}},
+        number={'suffix':"%",'font':{'color':'white','size':24}},
         gauge={
-            'axis': {'range':[None,100],'tickwidth':1,'tickcolor':"white"},
-            'bar':  {'color': color},
-            'bgcolor': "rgba(255,255,255,0.08)",
-            'borderwidth': 1, 'bordercolor': "white",
-            'steps': [
-                {'range':[0,33],  'color':'rgba(255,255,255,0.07)'},
-                {'range':[33,66], 'color':'rgba(255,255,255,0.12)'},
-                {'range':[66,100],'color':'rgba(255,255,255,0.17)'}
+            'axis':{'range':[None,100],'tickwidth':1,'tickcolor':'white','tickfont':{'size':8}},
+            'bar':{'color':clr},
+            'bgcolor':'rgba(255,255,255,0.07)',
+            'borderwidth':1,'bordercolor':'rgba(255,255,255,0.3)',
+            'steps':[
+                {'range':[0,33], 'color':'rgba(255,255,255,0.05)'},
+                {'range':[33,66],'color':'rgba(255,255,255,0.09)'},
+                {'range':[66,100],'color':'rgba(255,255,255,0.13)'}
             ],
-            'threshold': {'line':{'color':"white",'width':3},'thickness':0.7,'value':80}
+            'threshold':{'line':{'color':'white','width':2},'thickness':0.65,'value':80}
         }
     ))
     fig.update_layout(
         paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        font={'color':'white'}, height=185,
-        margin=dict(l=8, r=8, t=30, b=2)
+        font={'color':'white'}, height=165,
+        margin=dict(l=6,r=6,t=28,b=2)
     )
     return fig
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# LAYOUT  —  single page, 3 columns
-# ═══════════════════════════════════════════════════════════════════════════════
-with st.container():
-    st.markdown('<div class="main-container">', unsafe_allow_html=True)
+# ════════════════════════════════════════════════════════════════════════════════
+# LAYOUT
+# ════════════════════════════════════════════════════════════════════════════════
+colA, colB, colC = st.columns([1.0, 1.25, 1.05])
+is_high_risk = False
 
-    colA, colB, colC = st.columns([1.0, 1.3, 1.1])
-    is_high_risk = False
+# ── COL A — Input ────────────────────────────────────────────────────────────
+with colA:
+    # Header
+    st.markdown("""
+    <div class="app-header">
+        <span class="app-header-icon">🧠</span>
+        <span class="app-header-title">Suicidal Tweet Detector</span>
+    </div>
+    <p class="app-subtitle">LSTM model · detects suicidal ideation in tweets.<br><em>Enter text or pick a sample to begin.</em></p>
+    <hr class="divider">
+    """, unsafe_allow_html=True)
 
-    # ════════════════════════════════════
-    # COL A  —  Input
-    # ════════════════════════════════════
-    with colA:
-        st.markdown('<div class="app-title"><h2>🧠 Suicidal Tweet Detector</h2></div>', unsafe_allow_html=True)
+    # Sample tweets
+    with st.expander("✨ Sample Tweets", expanded=False):
+        for label, tweet in SAMPLE_TWEETS.items():
+            if st.button(label, key=f"sample_{label}", use_container_width=True):
+                st.session_state.user_input     = tweet
+                st.session_state["text_area"]   = tweet
+                st.session_state.should_analyze = True
+                st.rerun()
+
+    # Text input
+    user_input = st.text_area(
+        "📝 Your tweet:",
+        height=108,
+        placeholder="Type or paste a tweet here…",
+        value=st.session_state.user_input,
+        key="text_area"
+    )
+    st.session_state.user_input = user_input
+
+    # Buttons
+    b1, b2 = st.columns([1.6, 1])
+    with b1: analyze_btn = st.button("🔍 Analyze", use_container_width=True)
+    with b2: st.button("🗑️ Clear",   use_container_width=True, on_click=clear_text)
+
+    # Trigger analysis
+    if analyze_btn:
+        if user_input.strip():
+            p, ms = run_analysis(user_input)
+            st.session_state.last_result = {'prob':p,'ms':ms,'text':user_input,'ok':True}
+        else:
+            st.session_state.last_result = {'ok':False,'empty':True}
+        st.rerun()
+
+    if st.session_state.should_analyze and st.session_state.user_input.strip():
+        st.session_state.should_analyze = False
+        p, ms = run_analysis(st.session_state.user_input)
+        st.session_state.last_result = {'prob':p,'ms':ms,'text':st.session_state.user_input,'ok':True}
+        st.rerun()
+
+    st.markdown('<div class="col-footer">Built with ❤️ Streamlit + LSTM · Mental Health Awareness</div>', unsafe_allow_html=True)
+
+
+# ── COL B — Crisis info + Result ────────────────────────────────────────────
+with colB:
+    r = st.session_state.last_result
+
+    if r and r.get('ok') is False and r.get('empty'):
+        st.warning("⚠️ Please enter some text first.")
+
+    if r and r.get('ok'):
+        prob = r['prob']
+        is_high_risk = prob < 0.5
+
+        # ── Result card (TOP of col B) ──────────────────────────────────────
+        label     = "🔴 Suicidal / Negative"    if prob < 0.5 else "🟢 Non-Suicidal / Positive"
+        color     = "#f87171"                    if prob < 0.5 else "#34d399"
+        risk_lbl  = "HIGH RISK"                  if prob < 0.5 else "LOW RISK"
+        risk_cls  = "risk-high"                  if prob < 0.5 else "risk-low"
+        conf      = prob if prob >= 0.5 else (1-prob)
+        if conf >= 0.8:   cl, cc = "High Confidence",   "conf-high"
+        elif conf >= 0.6: cl, cc = "Medium Confidence", "conf-medium"
+        else:             cl, cc = "Low Confidence",    "conf-low"
+
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
         st.markdown(
-            '<p class="app-subtitle">LSTM model · detects possible suicidal ideation in tweets.<br><em>Enter text below to begin.</em></p>',
+            f'<p style="font-size:1rem;font-weight:700;color:{color};text-align:center;margin:0 0 0.3rem">{label}</p>',
             unsafe_allow_html=True
         )
-
-        with st.expander("✨ Try Sample Tweets"):
-            st.markdown("<strong>Click to load:</strong>", unsafe_allow_html=True)
-            for label, tweet in SAMPLE_TWEETS.items():
-                if st.button(label, key=f"sample_{label}", use_container_width=True):
-                    st.session_state.user_input     = tweet
-                    st.session_state["text_area"]   = tweet
-                    st.session_state.should_analyze = True
-                    st.rerun()
-
-        user_input = st.text_area(
-            "📝 Your tweet:",
-            height=115,
-            placeholder="Enter tweet text to analyze…",
-            value=st.session_state.user_input,
-            key="text_area"
-        )
-        st.session_state.user_input = user_input
-
-        btn1, btn2 = st.columns([1.5, 1])
-        with btn1:
-            analyze_button = st.button("🔍 Analyze", use_container_width=True)
-        with btn2:
-            st.button("🗑️ Clear", use_container_width=True, on_click=clear_text)
-
-        # Handle analyze button
-        if analyze_button:
-            if user_input.strip():
-                prob, elapsed_ms = run_analysis(user_input)
-                st.session_state.last_result = {
-                    'prob': prob, 'elapsed_ms': elapsed_ms,
-                    'text': user_input, 'analyzed': True, 'empty': False
-                }
-            else:
-                st.session_state.last_result = {'analyzed': True, 'empty': True}
-            st.rerun()
-
-        # Handle sample tweet auto-analyze
-        if st.session_state.should_analyze and st.session_state.user_input.strip():
-            st.session_state.should_analyze = False
-            prob, elapsed_ms = run_analysis(st.session_state.user_input)
-            st.session_state.last_result = {
-                'prob': prob, 'elapsed_ms': elapsed_ms,
-                'text': st.session_state.user_input, 'analyzed': True, 'empty': False
-            }
+        st.plotly_chart(gauge(prob), use_container_width=True)
 
         st.markdown(
-            '<div class="footer">Built with ❤️ Streamlit + LSTM · Mental Health Awareness</div>',
+            f'<p style="font-size:0.76rem;margin:0.15rem 0"><strong>Risk:</strong> <span class="{risk_cls}">{risk_lbl}</span></p>',
             unsafe_allow_html=True
         )
+        st.progress(int(prob*100) if prob>=0.5 else int((1-prob)*100))
+        st.markdown(
+            f'<div style="text-align:center;margin:0.25rem 0"><span class="conf-badge {cc}">{cl}: {conf:.1%}</span></div>',
+            unsafe_allow_html=True
+        )
+        st.markdown(
+            f'<div style="text-align:center;margin:0.25rem 0 0.4rem"><span style="background:linear-gradient(135deg,#43e97b,#38f9d7);color:#0b1727;padding:4px 14px;border-radius:999px;font-size:0.68rem;font-weight:600">⚡ {r["ms"]:.1f}ms</span></div>',
+            unsafe_allow_html=True
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # ════════════════════════════════════
-    # COL B  —  Crisis & Support
-    # ════════════════════════════════════
-    with colB:
-        result = st.session_state.last_result
+        # Download
+        res_txt = (f"Tweet:\n{r['text']}\n\nPrediction: {label.strip()}\n"
+                   f"Risk: {risk_lbl}\nConfidence: {conf:.1%}\n"
+                   f"Latency: {r['ms']:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        st.text_area("📋 Copy result:", res_txt, height=72)
+        st.download_button("📄 Download Result", res_txt, file_name="analysis.txt", use_container_width=True)
 
-        if result and result.get('analyzed') and result.get('empty'):
-            st.warning("⚠️ Please enter some text before analyzing.")
+        st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
-        if result and result.get('analyzed') and not result.get('empty'):
-            prob         = result['prob']
-            is_high_risk = prob < 0.5
+        # ── Crisis alert (if high risk) ──────────────────────────────────────
+        if is_high_risk:
+            st.error("🚨 **CRISIS ALERT** — High-risk content detected!")
+            c1, c2, c3, c4 = st.columns(4)
+            cards = [
+                ("🇰🇪 Kenya",   "📞 1199<br>📞 +254 722 178 177"),
+                ("🇺🇸 US",      "📞 988<br>💬 HOME → 741741"),
+                ("🇬🇧 UK",      "📞 116 123<br>(Samaritans)"),
+                ("🌍 Intl",     '🔗 <a href="https://findahelpline.com" target="_blank">findahelpline.com</a>'),
+            ]
+            for col, (title, body) in zip([c1,c2,c3,c4], cards):
+                with col:
+                    st.markdown(f'<div class="support-pill"><strong>{title}</strong>{body}</div>', unsafe_allow_html=True)
+            st.info("⚠️ For informational use only. Seek professional help if in crisis.")
 
-            if is_high_risk:
-                st.error("🚨 **CRISIS ALERT** — High-risk content detected!")
-                st.markdown("#### 🆘 Immediate Support")
+    # ── Always-visible Crisis Resources ─────────────────────────────────────
+    with st.expander("🆘 Crisis Resources & Support", expanded=is_high_risk):
+        r1, r2, r3 = st.columns(3)
+        with r1:
+            st.markdown("""<div class="crisis-card">
+            <strong>🇰🇪 Kenya</strong><br>
+            📞 Kenya Red Cross: 1199<br>
+            📞 Befrienders: +254 722 178 177<br>
+            📞 Lifeline: +254 20 272 1806
+            </div>""", unsafe_allow_html=True)
+        with r2:
+            st.markdown("""<div class="crisis-card">
+            <strong>🇺🇸 United States</strong><br>
+            📞 Lifeline: 988<br>
+            💬 Crisis Text: HOME → 741741<br><br>
+            <strong>🇬🇧 United Kingdom</strong><br>
+            📞 Samaritans: 116 123
+            </div>""", unsafe_allow_html=True)
+        with r3:
+            st.markdown("""<div class="crisis-card">
+            <strong>🌍 International</strong><br>
+            🔗 <a href="https://findahelpline.com" target="_blank">findahelpline.com</a><br><br>
+            <strong>Remember:</strong><br>
+            • You are not alone<br>
+            • Help available 24/7<br>
+            • Talking helps 💙
+            </div>""", unsafe_allow_html=True)
 
-                c1, c2, c3, c4 = st.columns(4)
-                with c1:
-                    st.markdown("""<div class="crisis-phone">
-                    <strong>🇰🇪 Kenya</strong><br>
-                    📞 1199<br>📞 +254 722 178 177
-                    </div>""", unsafe_allow_html=True)
-                with c2:
-                    st.markdown("""<div class="crisis-phone">
-                    <strong>🇺🇸 US</strong><br>
-                    📞 988<br>💬 HOME → 741741
-                    </div>""", unsafe_allow_html=True)
-                with c3:
-                    st.markdown("""<div class="crisis-phone">
-                    <strong>🇬🇧 UK</strong><br>
-                    📞 116 123<br>(Samaritans)
-                    </div>""", unsafe_allow_html=True)
-                with c4:
-                    st.markdown("""<div class="crisis-phone">
-                    <strong>🌍 Intl</strong><br>
-                    🔗 <a href="https://findahelpline.com" target="_blank">findahelpline.com</a>
-                    </div>""", unsafe_allow_html=True)
 
-                st.info("⚠️ For informational use only. Seek professional help if in crisis.")
+# ── COL C — Analytics ────────────────────────────────────────────────────────
+with colC:
+    st.markdown('<h3 style="text-align:center;margin:0 0 0.4rem">📊 Analytics</h3>', unsafe_allow_html=True)
 
-        # Always-visible full crisis resources
-        with st.expander("🆘 Crisis Resources & Support", expanded=is_high_risk):
-            r1, r2, r3 = st.columns(3)
-            with r1:
-                st.markdown("""<div class="crisis-phone">
-                <strong>🇰🇪 Kenya</strong><br>
-                📞 Kenya Red Cross: 1199<br>
-                📞 Befrienders: +254 722 178 177<br>
-                📞 Lifeline: +254 20 272 1806
-                </div>""", unsafe_allow_html=True)
-            with r2:
-                st.markdown("""<div class="crisis-phone">
-                <strong>🇺🇸 United States</strong><br>
-                📞 Lifeline: 988<br>
-                💬 Crisis Text: HOME → 741741<br><br>
-                <strong>🇬🇧 United Kingdom</strong><br>
-                📞 Samaritans: 116 123
-                </div>""", unsafe_allow_html=True)
-            with r3:
-                st.markdown("""<div class="crisis-phone">
-                <strong>🌍 International</strong><br>
-                🔗 <a href="https://findahelpline.com" target="_blank">findahelpline.com</a><br><br>
-                <strong>Remember:</strong><br>
-                • You are not alone<br>
-                • Help is available 24/7<br>
-                • Talking helps 💙
-                </div>""", unsafe_allow_html=True)
+    a = st.session_state.analytics
+    if a['total_analyses'] > 0:
+        # Stat cards
+        st.markdown(f"""
+        <div class="stat-row">
+            <div class="stat-card">
+                <div class="stat-label">Total</div>
+                <div class="stat-number">{a['total_analyses']}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Positive</div>
+                <div class="stat-number" style="color:#34d399">{a['positive_count']}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Negative</div>
+                <div class="stat-number" style="color:#f87171">{a['negative_count']}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # ════════════════════════════════════
-    # COL C  —  Analytics + Results
-    # ════════════════════════════════════
-    with colC:
-        # Analytics Dashboard
-        with st.expander("📊 Analytics Dashboard", expanded=False):
-            if st.session_state.analytics['total_analyses'] > 0:
-                a = st.session_state.analytics
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.markdown(f'<div class="stat-card"><div class="stat-label">Total</div><div class="stat-number">{a["total_analyses"]}</div></div>', unsafe_allow_html=True)
-                with col2:
-                    st.markdown(f'<div class="stat-card"><div class="stat-label">✅ Pos</div><div class="stat-number" style="color:#51cf66">{a["positive_count"]}</div></div>', unsafe_allow_html=True)
-                with col3:
-                    st.markdown(f'<div class="stat-card"><div class="stat-label">⚠️ Neg</div><div class="stat-number" style="color:#ff6b6b">{a["negative_count"]}</div></div>', unsafe_allow_html=True)
+        # Pie chart — correct color mapping
+        fig_pie = go.Figure(go.Pie(
+            labels=['Positive','Negative'],
+            values=[a['positive_count'], a['negative_count']],
+            marker_colors=['#34d399','#f87171'],
+            hole=0.38,
+            textfont_size=10,
+            textfont_color='white'
+        ))
+        fig_pie.update_layout(
+            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+            font={'color':'white'}, height=185,
+            margin=dict(l=5,r=5,t=8,b=5),
+            legend=dict(font=dict(color='white',size=9), orientation='v',
+                        x=1.0, y=0.5)
+        )
+        st.plotly_chart(fig_pie, use_container_width=True)
 
-                fig_pie = px.pie(
-                    values=[a['positive_count'], a['negative_count']],
-                    names=['Positive','Negative'],
-                    color_discrete_sequence=['#51cf66','#ff6b6b']
-                )
-                fig_pie.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                    font={'color':'white'}, height=170,
-                    margin=dict(l=5,r=5,t=8,b=5),
-                    legend=dict(font=dict(color='white', size=9))
-                )
-                st.plotly_chart(fig_pie, use_container_width=True)
-
-                st.markdown("<strong style='font-size:0.78rem'>📝 Recent Analyses</strong>", unsafe_allow_html=True)
-                for item in reversed(a['history'][-4:]):
-                    emoji = "🟢" if item['classification'] == "Positive" else "🔴"
-                    st.markdown(
-                        f"<p style='margin:0.08rem 0;font-size:0.7rem'>{emoji} <strong>{item['classification']}</strong> · {item['timestamp']} · {item['probability']:.0%}<br><em>{item['text_preview']}</em></p>",
-                        unsafe_allow_html=True
-                    )
-            else:
-                st.info("No analyses yet — run your first scan!")
-
-        # Result card + Gauge (shown after analysis)
-        result = st.session_state.last_result
-        if result and result.get('analyzed') and not result.get('empty'):
-            prob       = result['prob']
-            elapsed_ms = result['elapsed_ms']
-
-            label      = "🔴 Suicidal / Negative" if prob < 0.5 else "🟢 Non-Suicidal / Positive"
-            color      = "#ff6b6b"                 if prob < 0.5 else "#51cf66"
-            risk_level = "HIGH RISK"               if prob < 0.5 else "LOW RISK"
-
-            confidence_pct = prob if prob >= 0.5 else (1 - prob)
-            if confidence_pct >= 0.8:
-                conf_label, conf_class = "High Confidence",   "confidence-high"
-            elif confidence_pct >= 0.6:
-                conf_label, conf_class = "Medium Confidence", "confidence-medium"
-            else:
-                conf_label, conf_class = "Low Confidence",    "confidence-low"
-
-            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        # Recent analyses
+        st.markdown('<hr class="divider">', unsafe_allow_html=True)
+        st.markdown('<p style="font-size:0.74rem;font-weight:600;margin-bottom:0.2rem">📝 Recent Analyses</p>', unsafe_allow_html=True)
+        for item in reversed(a['history'][-5:]):
+            emoji = "🟢" if item['cls']=="Positive" else "🔴"
             st.markdown(
-                f'<h2 style="color:{color};font-size:1rem!important;margin:0.1rem 0 0.3rem!important;text-align:center">{label}</h2>',
+                f'<p style="margin:0.1rem 0;font-size:0.69rem">{emoji} <strong>{item["cls"]}</strong> · {item["ts"]} · {item["prob"]:.0%}<br><em style="color:rgba(255,255,255,0.6)">{item["txt"]}</em></p>',
                 unsafe_allow_html=True
             )
-
-            gauge_fig = create_sentiment_gauge(prob)
-            st.plotly_chart(gauge_fig, use_container_width=True)
-
-            st.markdown(f"<p style='font-size:0.78rem;margin:0.2rem 0'><strong>Risk Assessment:</strong> {risk_level}</p>", unsafe_allow_html=True)
-            st.progress(int(prob * 100) if prob >= 0.5 else int((1 - prob) * 100))
-
-            st.markdown(
-                f'<div style="text-align:center;margin:0.3rem 0"><span class="confidence-badge {conf_class}">{conf_label}: {confidence_pct:.1%}</span></div>',
-                unsafe_allow_html=True
-            )
-            st.markdown(
-                f'<div style="text-align:center;margin-bottom:0.4rem"><div style="display:inline-block;padding:5px 14px;border-radius:999px;background:linear-gradient(135deg,#43e97b,#38f9d7);color:#0b1727;font-size:0.7rem;font-weight:600;box-shadow:0 3px 12px rgba(67,233,123,0.5)">⚡ {elapsed_ms:.1f}ms</div></div>',
-                unsafe_allow_html=True
-            )
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            result_text = (
-                f"Tweet:\n{result['text']}\n\n"
-                f"Prediction: {label.strip()}\nRisk: {risk_level}\n"
-                f"Confidence: {confidence_pct:.1%}\nLatency: {elapsed_ms:.1f}ms\n"
-                f"Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n"
-            )
-            st.text_area("📋 Copy result:", result_text, height=85)
-            st.download_button("📄 Download Result", result_text, file_name="analysis.txt", use_container_width=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style="text-align:center;padding:2rem 0.5rem;color:rgba(255,255,255,0.5)">
+            <div style="font-size:2rem;margin-bottom:0.5rem">📊</div>
+            <p style="font-size:0.76rem">No analyses yet.<br>Run your first scan to see stats here.</p>
+        </div>
+        """, unsafe_allow_html=True)
