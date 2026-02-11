@@ -409,7 +409,7 @@ with st.container():
     """, unsafe_allow_html=True)
 
     # Quick sample tweets section - ONLY 2 BUTTONS
-    with st.expander("💡 Try Sample Tweets"):
+    with st.expander(" Try Sample Tweets"):
         st.markdown("Click a button to test with example tweets:")
         cols = st.columns(2)
         for idx, (label, tweet) in enumerate(SAMPLE_TWEETS.items()):
