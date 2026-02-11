@@ -452,6 +452,7 @@ def clear_text():
     st.session_state["text_area"] = ""
     st.session_state.should_analyze = False
 
+
 # ===== NEW: Function to update analytics =====
 def update_analytics(prob, text):
     st.session_state.analytics['total_analyses'] += 1
@@ -475,6 +476,7 @@ def update_analytics(prob, text):
     if len(st.session_state.analytics['history']) > 10:
         st.session_state.analytics['history'] = st.session_state.analytics['history'][-10:]
 
+
 # ===== NEW: Function to create sentiment intensity gauge =====
 def create_sentiment_gauge(prob):
     # Determine sentiment direction and intensity
@@ -490,12 +492,12 @@ def create_sentiment_gauge(prob):
         sentiment = "Negative"
     
     fig = go.Figure(go.Indicator(
-        mode = "gauge+number",
-        value = intensity * 100,
-        domain = {'x': [0, 1], 'y': [0, 1]},
-        title = {'text': f"{sentiment} Sentiment Intensity", 'font': {'color': 'white', 'size': 20}},
-        number = {'suffix': "%", 'font': {'color': 'white', 'size': 40}},
-        gauge = {
+        mode="gauge+number",
+        value=intensity * 100,
+        domain={'x': [0, 1], 'y': [0, 1]},
+        title={'text': f"{sentiment} Sentiment Intensity", 'font': {'color': 'white', 'size': 20}},
+        number={'suffix': "%", 'font': {'color': 'white', 'size': 40}},
+        gauge={
             'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "white"},
             'bar': {'color': color},
             'bgcolor': "rgba(255,255,255,0.1)",
@@ -567,8 +569,8 @@ with st.container():
             
             # Pie chart
             fig = px.pie(
-                values=[st.session_state.analytics['positive_count'], 
-                       st.session_state.analytics['negative_count']],
+                values=[st.session_state.analytics['positive_count'],
+                        st.session_state.analytics['negative_count']],
                 names=['Positive', 'Negative'],
                 title='Classification Distribution',
                 color_discrete_sequence=['#51cf66', '#ff6b6b']
@@ -608,8 +610,8 @@ with st.container():
 
     # Input with session state
     user_input = st.text_area(
-        "Type your tweet here:", 
-        height=150, 
+        "Type your tweet here:",
+        height=150,
         placeholder="Enter tweet text to analyze...",
         value=st.session_state.user_input,
         key="text_area"
@@ -626,9 +628,6 @@ with st.container():
     
     with col2:
         clear_button = st.button("🗑️ Clear", use_container_width=True, on_click=clear_text)
-
-    
-    
 
     # Analysis logic - triggered by button OR sample tweet
     if analyze_button or st.session_state.should_analyze:
@@ -702,8 +701,14 @@ with st.container():
             # Display results
             st.markdown('<div class="result-card">', unsafe_allow_html=True)
             
-            st.markdown(f'<div style="text-align: center; font-size: 4rem; margin: 1rem 0;">{emoji}</div>', unsafe_allow_html=True)
-            st.markdown(f'<h2 style="color: {color}; text-align: center; margin: 1rem 0;">{label}</h2>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div style="text-align: center; font-size: 4rem; margin: 1rem 0;">{emoji}</div>',
+                unsafe_allow_html=True
+            )
+            st.markdown(
+                f'<h2 style="color: {color}; text-align: center; margin: 1rem 0;">{label}</h2>',
+                unsafe_allow_html=True
+            )
             
             st.markdown("---")
             
@@ -745,7 +750,7 @@ with st.container():
                 unsafe_allow_html=True
             )
             
-                        st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
             # Crisis Resources Section (appears right after result)
             with st.expander("🆘 Crisis Resources & Support", expanded=(prob < 0.5)):
@@ -791,8 +796,9 @@ Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}
             if prob < 0.5:
                 st.info("⚠️ **Important**: This tool is for informational purposes only. If you or someone you know is in crisis, please seek help immediately.")
 
-
-   
     # Footer
-    st.markdown('<div class="footer">Built with ❤️ using Streamlit + LSTM • Mental Health Awareness • Stay safe, stay kind</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="footer">Built with ❤️ using Streamlit + LSTM • Mental Health Awareness • Stay safe, stay kind</div>',
+        unsafe_allow_html=True
+    )
     st.markdown('</div>', unsafe_allow_html=True)
