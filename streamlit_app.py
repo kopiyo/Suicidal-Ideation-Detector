@@ -381,15 +381,14 @@ is_high_risk = False
 # ── COL A — Input ────────────────────────────────────────────────────────────
 with colA:
     st.markdown("""
-    <div class="app-header">
-        <span class="app-header-icon">🧠</span>
+    <div class="app-header">        
         <span class="app-header-title">Suicidal Tweet Detector</span>
     </div>
     <p class="app-subtitle">LSTM model · detects suicidal ideation in tweets.<br><em>Enter text or pick a sample to begin.</em></p>
     <hr class="divider">
     """, unsafe_allow_html=True)
 
-    with st.expander("✨ Sample Tweets", expanded=False):
+    with st.expander(" Try Sample Tweet", expanded=False):
         for label, tweet in SAMPLE_TWEETS.items():
             if st.button(label, key=f"sample_{label}", use_container_width=True):
                 st.session_state.user_input     = tweet
@@ -398,7 +397,7 @@ with colA:
                 st.rerun()
 
     user_input = st.text_area(
-        "📝 Your tweet:",
+        "Enter Your Tweet Here to Begin:",
         height=108,
         placeholder="Type or paste a tweet here…",
         value=st.session_state.user_input,
