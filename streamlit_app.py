@@ -746,25 +746,8 @@ with st.container():
             )
             
             st.markdown('</div>', unsafe_allow_html=True)
-            
-            # ===== EXISTING: Result Summary (Copy / Download) =====
-            result_text = f"""Tweet:
-            {st.session_state.user_input}
-            Prediction: {label.strip()}
-            Risk: {risk_level}
-            Confidence: {confidence_pct:.1%}
-            Latency: {elapsed_ms:.1f}ms
-            Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}
-            """
-            st.text_area("Result summary (copy this):", result_text, height=180)
-            st.download_button("📄 Download Result", result_text, file_name="analysis.txt")
-            
-            # Crisis resources if high risk
-            if prob < 0.5:
-                st.info("⚠️ **Important**: This tool is for informational purposes only. If you or someone you know is in crisis, please seek help immediately.")
-
-    # Crisis Resources Section
-    with st.expander("🆘 Crisis Resources & Support"):
+             # Crisis Resources Section
+    with st.expander("🆘 Crisis Resources & Support", expanded=(prob < 0.5)):
         st.markdown("""
         ### If you need immediate help:
 
@@ -790,6 +773,24 @@ with st.container():
         - Speaking to someone can make a difference
         """)
 
+            
+            # ===== EXISTING: Result Summary (Copy / Download) =====
+            result_text = f"""Tweet:
+            {st.session_state.user_input}
+            Prediction: {label.strip()}
+            Risk: {risk_level}
+            Confidence: {confidence_pct:.1%}
+            Latency: {elapsed_ms:.1f}ms
+            Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}
+            """
+            st.text_area("Result summary (copy this):", result_text, height=180)
+            st.download_button("📄 Download Result", result_text, file_name="analysis.txt")
+            
+            # Crisis resources if high risk
+            if prob < 0.5:
+                st.info("⚠️ **Important**: This tool is for informational purposes only. If you or someone you know is in crisis, please seek help immediately.")
+
+   
     # Footer
     st.markdown('<div class="footer">Built with ❤️ using Streamlit + LSTM • Mental Health Awareness • Stay safe, stay kind</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
