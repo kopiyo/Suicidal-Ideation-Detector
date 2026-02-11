@@ -12,7 +12,7 @@ import plotly.express as px
 st.set_page_config(
     page_title="Suicidal Tweet Detector",
     page_icon="🧠",
-    layout="wide",  # Changed to wide for better 3-column layout
+    layout="wide",
     initial_sidebar_state="collapsed"
 )
 
@@ -471,7 +471,7 @@ SAMPLE_TWEETS = {
     "Negative 😔": "I feel like nobody cares anymore. I am so depressed. What's the point of trying?"
 }
 
-# ===== NEW: Initialize Analytics Session State =====
+# ===== Initialize Analytics Session State =====
 if 'analytics' not in st.session_state:
     st.session_state.analytics = {
         'total_analyses': 0,
@@ -508,7 +508,7 @@ def clear_text():
     st.session_state["text_area"] = ""
     st.session_state.should_analyze = False
 
-# ===== NEW: Function to update analytics =====
+# ===== Function to update analytics =====
 def update_analytics(prob, text):
     st.session_state.analytics['total_analyses'] += 1
     
@@ -519,7 +519,6 @@ def update_analytics(prob, text):
         st.session_state.analytics['negative_count'] += 1
         classification = "Negative"
     
-    # Add to history (keep last 10)
     st.session_state.analytics['history'].append({
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'classification': classification,
@@ -527,21 +526,17 @@ def update_analytics(prob, text):
         'text_preview': text[:50] + "..." if len(text) > 50 else text
     })
     
-    # Keep only last 10 analyses
     if len(st.session_state.analytics['history']) > 10:
         st.session_state.analytics['history'] = st.session_state.analytics['history'][-10:]
 
-# ===== NEW: Function to create sentiment intensity gauge =====
+# ===== Function to create sentiment intensity gauge =====
 def create_sentiment_gauge(prob):
-    # Determine sentiment direction and intensity
     if prob >= 0.5:
-        # Positive sentiment
-        intensity = (prob - 0.5) * 2  # Scale 0.5-1.0 to 0-1
+        intensity = (prob - 0.5) * 2
         color = "#51cf66"
         sentiment = "Positive"
     else:
-        # Negative sentiment
-        intensity = (0.5 - prob) * 2  # Scale 0-0.5 to 1-0
+        intensity = (0.5 - prob) * 2
         color = "#ff6b6b"
         sentiment = "Negative"
     
@@ -580,27 +575,33 @@ def create_sentiment_gauge(prob):
     
     return fig
 
+# ─────────────────────────────────────────────
 # Main app layout
+# ─────────────────────────────────────────────
 with st.container():
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
-    # 3 columns with adjusted ratios
+    # 3 columns: Left (input) | Middle (crisis/support) | Right (analytics + gauge)
     colA, colB, colC = st.columns([1.1, 1.4, 1.1])
 
-    # safe default so right-side expander won't crash before first analysis
+    # safe default so right-side panel won't crash before first analysis
     is_high_risk = False
+
+    # Store analysis results in session state so colC can access them
+    if 'last_result' not in st.session_state:
+        st.session_state.last_result = None
 
     # =========================
     # COLUMN A (Left): Input + Samples + Buttons
     # =========================
     with colA:
-        st.markdown("## Suicidal Tweet Detector")
+        st.markdown("## 🧠 Suicidal Tweet Detector")
         st.markdown("""
         This tool uses an LSTM model to analyze the emotional tone of tweets and detect possible suicidal ideation.  
         _Enter a tweet below to begin._
         """, unsafe_allow_html=True)
 
-        with st.expander(" Try Sample Tweets"):
+        with st.expander("✨ Try Sample Tweets"):
             st.markdown("**Click a button to test:**")
             for label, tweet in SAMPLE_TWEETS.items():
                 if st.button(label, key=f"sample_{label}", use_container_width=True):
@@ -610,7 +611,7 @@ with st.container():
                     st.rerun()
 
         user_input = st.text_area(
-            " Type your tweet here:",
+            "📝 Type your tweet here:",
             height=160,
             placeholder="Enter tweet text to analyze...",
             value=st.session_state.user_input,
@@ -626,9 +627,108 @@ with st.container():
             clear_button = st.button("🗑️ Clear", use_container_width=True, on_click=clear_text)
 
     # =========================
-    # COLUMN C (Right): Analytics + Crisis (static panel)
+    # Run analysis (before rendering colB & colC so results are available)
+    # =========================
+    if analyze_button or st.session_state.should_analyze:
+        st.session_state.should_analyze = False
+
+        if st.session_state.user_input.strip() != "":
+            sequence = tokenizer.texts_to_sequences([st.session_state.user_input])
+            padded = pad_sequences(sequence, maxlen=100)
+            start_time = time.time()
+            prob = model.predict(padded, verbose=0)[0][0]
+            elapsed_ms = (time.time() - start_time) * 1000
+
+            update_analytics(prob, st.session_state.user_input)
+
+            st.session_state.last_result = {
+                'prob': prob,
+                'elapsed_ms': elapsed_ms,
+                'text': st.session_state.user_input,
+                'analyzed': True,
+                'empty': False
+            }
+        else:
+            st.session_state.last_result = {'analyzed': True, 'empty': True}
+
+    # =========================
+    # COLUMN B (Middle): 🆘 Immediate Support + Crisis Resources & Support
+    # =========================
+    with colB:
+        result = st.session_state.last_result
+
+        # Show empty-input warning in middle column
+        if result and result.get('analyzed') and result.get('empty'):
+            st.warning("⚠️ Please enter some text before analyzing.")
+
+        # Show crisis alert + immediate support if high-risk
+        if result and result.get('analyzed') and not result.get('empty'):
+            prob = result['prob']
+            is_high_risk = prob < 0.5
+
+            if is_high_risk:
+                st.error("🚨 **CRISIS ALERT**: High-risk content detected!")
+                st.markdown("### 🆘 Immediate Support Available")
+
+                c1, c2, c3 = st.columns(3)
+                with c1:
+                    st.markdown("""
+                    <div class="crisis-phone">
+                    <strong>🇰🇪 Kenya</strong><br>
+                    📞 1199<br>
+                    📞 +254 722 178 177
+                    </div>
+                    """, unsafe_allow_html=True)
+                with c2:
+                    st.markdown("""
+                    <div class="crisis-phone">
+                    <strong>🇺🇸 US</strong><br>
+                    📞 988<br>
+                    💬 Text HOME to 741741
+                    </div>
+                    """, unsafe_allow_html=True)
+                with c3:
+                    st.markdown("""
+                    <div class="crisis-phone">
+                    <strong>🇬🇧 UK</strong><br>
+                    📞 116 123<br>
+                    (Samaritans)
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                st.info("⚠️ **Important**: This tool is for informational purposes only. If you or someone you know is in crisis, please seek help immediately.")
+
+        # Crisis resources expander — always visible in colB, auto-expands if high risk
+        with st.expander("🆘 Crisis Resources & Support", expanded=is_high_risk):
+            st.markdown("""
+            ### If you need immediate help:
+
+            **🇰🇪 Kenya:**
+            - **Kenya Red Cross:** 1199
+            - **Befrienders Kenya:** +254 722 178 177
+            - **Lifeline Kenya:** +254 20 272 1806
+            
+            **🇺🇸 United States:**
+            - **National Suicide Prevention Lifeline:** 988
+            - **Crisis Text Line:** Text HOME to 741741
+            
+            **🇬🇧 United Kingdom:**
+            - **Samaritans:** 116 123
+            
+            **🌍 International:**
+            - **International Association for Suicide Prevention:** [findahelpline.com](https://findahelpline.com)
+            
+            ### Remember:
+            - You are not alone
+            - Help is available 24/7
+            - Speaking to someone can make a difference
+            """)
+
+    # =========================
+    # COLUMN C (Right): Analytics Dashboard + Sentiment Gauge + Result Card
     # =========================
     with colC:
+        # Analytics Dashboard expander
         with st.expander("📊 Analytics Dashboard", expanded=False):
             if st.session_state.analytics['total_analyses'] > 0:
                 col1, col2, col3 = st.columns(3)
@@ -683,153 +783,79 @@ with st.container():
             else:
                 st.info("📊 No analyses yet. Run your first analysis to see statistics!")
 
-        # Crisis resources always available on the right, auto-expands after analysis if high-risk
-        with st.expander("🆘 Crisis Resources & Support", expanded=is_high_risk):
-            st.markdown("""
-            ### If you need immediate help:
+        # Sentiment Gauge + Result Card — shown after analysis
+        result = st.session_state.last_result
+        if result and result.get('analyzed') and not result.get('empty'):
+            prob = result['prob']
+            elapsed_ms = result['elapsed_ms']
 
-            **🇰🇪 Kenya:**
-            - **Kenya Red Cross:** 1199
-            - **Befrienders Kenya:** +254 722 178 177
-            - **Lifeline Kenya:** +254 20 272 1806
-            
-            **🇺🇸 United States:**
-            - **National Suicide Prevention Lifeline:** 988
-            - **Crisis Text Line:** Text HOME to 741741
-            
-            **🇬🇧 United Kingdom:**
-            - **Samaritans:** 116 123
-            
-            **🌍 International:**
-            - **International Association for Suicide Prevention:** [findahelpline.com](https://findahelpline.com)
-            
-            ### Remember:
-            - You are not alone
-            - Help is available 24/7
-            - Speaking to someone can make a difference
-            """)
-
-    # =========================
-    # COLUMN B (Middle): Results
-    # =========================
-    with colB:
-        if analyze_button or st.session_state.should_analyze:
-            st.session_state.should_analyze = False
-
-            if st.session_state.user_input.strip() == "":
-                st.warning("⚠️ Please enter some text before analyzing.")
+            if prob < 0.5:
+                label = "🔴 Suicidal / Negative"
+                color = "#ff6b6b"
+                risk_level = "HIGH RISK"
             else:
-                with st.spinner("🤖 Analyzing tweet…"):
-                    start_time = time.time()
+                label = "🟢 Non-Suicidal / Positive"
+                color = "#51cf66"
+                risk_level = "LOW RISK"
 
-                    sequence = tokenizer.texts_to_sequences([st.session_state.user_input])
-                    padded = pad_sequences(sequence, maxlen=100)
-                    prob = model.predict(padded, verbose=0)[0][0]
+            confidence_pct = prob if prob >= 0.5 else (1 - prob)
+            if confidence_pct >= 0.8:
+                conf_label = "High Confidence"
+                conf_class = "confidence-high"
+            elif confidence_pct >= 0.6:
+                conf_label = "Medium Confidence"
+                conf_class = "confidence-medium"
+            else:
+                conf_label = "Low Confidence"
+                conf_class = "confidence-low"
 
-                    end_time = time.time()
-                    elapsed_ms = (end_time - start_time) * 1000
+            st.markdown('<div class="result-card">', unsafe_allow_html=True)
 
-                    update_analytics(prob, st.session_state.user_input)
+            st.markdown(
+                f'<h2 style="color: {color}; text-align: center; margin: 1rem 0;">{label}</h2>',
+                unsafe_allow_html=True
+            )
 
-                if prob < 0.5:
-                    label = "🔴 Suicidal / Negative"
-                    color = "#ff6b6b"
-                    risk_level = "HIGH RISK"
-                    is_high_risk = True
-                else:
-                    label = "🟢 Non-Suicidal / Positive"
-                    color = "#51cf66"
-                    risk_level = "LOW RISK"
-                    is_high_risk = False
+            st.markdown("---")
 
-                confidence_pct = prob if prob >= 0.5 else (1 - prob)
-                if confidence_pct >= 0.8:
-                    conf_label = "High Confidence"
-                    conf_class = "confidence-high"
-                elif confidence_pct >= 0.6:
-                    conf_label = "Medium Confidence"
-                    conf_class = "confidence-medium"
-                else:
-                    conf_label = "Low Confidence"
-                    conf_class = "confidence-low"
+            st.markdown("### 📊 Sentiment Intensity")
+            gauge_fig = create_sentiment_gauge(prob)
+            st.plotly_chart(gauge_fig, use_container_width=True)
 
-                if prob < 0.5:
-                    st.error("🚨 **CRISIS ALERT**: High-risk content detected!")
-                    st.markdown("### 🆘 Immediate Support Available")
+            st.markdown("---")
 
-                    c1, c2, c3 = st.columns(3)
-                    with c1:
-                        st.markdown("""
-                        <div class="crisis-phone">
-                        <strong>🇰🇪 Kenya</strong><br>
-                        📞 1199<br>
-                        📞 +254 722 178 177
-                        </div>
-                        """, unsafe_allow_html=True)
-                    with c2:
-                        st.markdown("""
-                        <div class="crisis-phone">
-                        <strong>🇺🇸 US</strong><br>
-                        📞 988<br>
-                        💬 Text HOME to 741741
-                        </div>
-                        """, unsafe_allow_html=True)
-                    with c3:
-                        st.markdown("""
-                        <div class="crisis-phone">
-                        <strong>🇬🇧 UK</strong><br>
-                        📞 116 123<br>
-                        (Samaritans)
-                        </div>
-                        """, unsafe_allow_html=True)
+            st.markdown(f"**Risk Assessment:** {risk_level}")
+            st.progress(int(prob * 100) if prob >= 0.5 else int((1 - prob) * 100))
 
-                st.markdown('<div class="result-card">', unsafe_allow_html=True)
+            st.markdown(
+                f'<div style="text-align: center; margin: 1rem 0;"><span class="confidence-badge {conf_class}">{conf_label}: {confidence_pct:.1%}</span></div>',
+                unsafe_allow_html=True
+            )
 
-                st.markdown(
-                    f'<h2 style="color: {color}; text-align: center; margin: 1rem 0;">{label}</h2>',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown("---")
-
-                st.markdown("### 📊 Sentiment Intensity")
-                gauge_fig = create_sentiment_gauge(prob)
-                st.plotly_chart(gauge_fig, use_container_width=True)
-
-                st.markdown("---")
-
-                st.markdown(f"**Risk Assessment:** {risk_level}")
-                st.progress(int(prob * 100) if prob >= 0.5 else int((1 - prob) * 100))
-
-                st.markdown(
-                    f'<div style="text-align: center; margin: 1rem 0;"><span class="confidence-badge {conf_class}">{conf_label}: {confidence_pct:.1%}</span></div>',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    f"""
-                    <div style="text-align: center; margin-top: 1.5rem;">
-                        <div style="
-                            display:inline-block;
-                            padding:10px 24px;
-                            border-radius:999px;
-                            background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);
-                            color:#0b1727;
-                            font-size:14px;
-                            font-weight:600;
-                            box-shadow:0 6px 20px rgba(67,233,123,0.5);
-                        ">
-                            ⚡ Analyzed in {elapsed_ms:.1f}ms
-                        </div>
+            st.markdown(
+                f"""
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <div style="
+                        display:inline-block;
+                        padding:10px 24px;
+                        border-radius:999px;
+                        background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);
+                        color:#0b1727;
+                        font-size:14px;
+                        font-weight:600;
+                        box-shadow:0 6px 20px rgba(67,233,123,0.5);
+                    ">
+                        ⚡ Analyzed in {elapsed_ms:.1f}ms
                     </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-                st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-                result_text = f"""Tweet:
-{st.session_state.user_input}
+            result_text = f"""Tweet:
+{result['text']}
 
 Prediction: {label.strip()}
 Risk: {risk_level}
@@ -838,11 +864,8 @@ Latency: {elapsed_ms:.1f}ms
 Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}
 """
 
-                st.text_area("📋 Result summary (copy this):", result_text, height=140)
-                st.download_button("📄 Download Result", result_text, file_name="analysis.txt", use_container_width=True)
-
-                if prob < 0.5:
-                    st.info("⚠️ **Important**: This tool is for informational purposes only. If you or someone you know is in crisis, please seek help immediately.")
+            st.text_area("📋 Result summary (copy this):", result_text, height=140)
+            st.download_button("📄 Download Result", result_text, file_name="analysis.txt", use_container_width=True)
 
     # Footer
     st.markdown(
