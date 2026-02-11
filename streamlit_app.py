@@ -436,10 +436,10 @@ with colB:
         🆘 CRISIS HELPLINES — Available 24/7
     </p>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.25rem;margin-bottom:0.4rem">
-        <div class="support-pill"><strong>🇰🇪 Kenya</strong>📞 1199<br>+254 722 178 177</div>
-        <div class="support-pill"><strong>🇺🇸 US</strong>📞 988<br>💬 HOME→741741</div>
-        <div class="support-pill"><strong>🇬🇧 UK</strong>📞 116 123<br><em>Samaritans</em></div>
-        <div class="support-pill"><strong>🌍 Intl</strong>🔗 <a href="https://findahelpline.com" target="_blank">findahelpline.com</a></div>
+        <div class="support-pill"><strong>🇰🇪 Kenya</strong>📞 <em>Kenya Red Cross</em><br>1199<br>📞 <em>Befrienders</em><br>+254 722 178 177</div>
+        <div class="support-pill"><strong>🇺🇸 US</strong>📞 <em>Suicide & Crisis Lifeline</em><br>988<br>💬 <em>Crisis Text Line</em><br>HOME → 741741</div>
+        <div class="support-pill"><strong>🇬🇧 UK</strong>📞 <em>Samaritans</em><br>116 123</div>
+        <div class="support-pill"><strong>🌍 Intl</strong>🔗 <em>Find A Helpline</em><br><a href="https://findahelpline.com" target="_blank">findahelpline.com</a></div>
     </div>
     <hr class="divider">
     """, unsafe_allow_html=True)
