@@ -8,6 +8,7 @@ from tensorflow.keras.models import load_model
 # Page configuration
 st.set_page_config(
     page_title="Suicidal Tweet Detector",
+    page_icon="🧠",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -114,7 +115,15 @@ st.markdown("""
         font-style: italic;
     }
 
-    /* Button - gradient and hover effect */
+    /* Button container for side-by-side buttons */
+    .button-row {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2rem 0;
+    }
+
+    /* Primary Button - gradient and hover effect */
     .stButton {
         text-align: center;
         margin: 2.5rem 0;
@@ -165,10 +174,41 @@ st.markdown("""
         padding: 1rem 1.2rem !important;
         font-size: 1rem;
     }
+    
+    /* Info/Success boxes */
+    .stInfo {
+        background-color: rgba(33, 150, 243, 0.18) !important;
+        color: #fff !important;
+        border-left: 5px solid #2196f3 !important;
+        border-radius: 12px !important;
+        backdrop-filter: blur(10px);
+        padding: 1rem 1.2rem !important;
+    }
 
     /* Spinner */
     .stSpinner > div {
         border-top-color: #f5576c !important;
+    }
+
+    /* Expander styling */
+    .streamlit-expanderHeader {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        color: white !important;
+        font-weight: 600 !important;
+        padding: 0.8rem 1rem !important;
+        backdrop-filter: blur(10px);
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+    }
+    
+    .streamlit-expanderContent {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border-radius: 0 0 12px 12px !important;
+        backdrop-filter: blur(10px);
+        padding: 1rem !important;
     }
 
     /* Footer */
@@ -203,6 +243,57 @@ st.markdown("""
         font-weight: 700 !important;
     }
 
+    /* Result card */
+    .result-card {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        animation: slideUp 0.5s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Confidence badge */
+    .confidence-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0.5rem;
+    }
+    
+    .confidence-high {
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+        color: white;
+        box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+    }
+    
+    .confidence-medium {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    }
+    
+    .confidence-low {
+        background: linear-gradient(135deg, #ffd89b, #19547b);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 216, 155, 0.4);
+    }
+
     /* Fade-in animation */
     @keyframes fadeInUp {
         from {
@@ -224,24 +315,31 @@ st.markdown("""
         color: rgba(255, 255, 255, 0.85) !important;
         font-style: italic;
     }
+    
+    /* Columns */
+    .stColumns {
+        gap: 1rem !important;
+    }
 
     </style>
 """, unsafe_allow_html=True)
+
+# Sample tweets for quick testing
+SAMPLE_TWEETS = {
+    "Positive 😊": "Just got promoted at work! Feeling blessed and grateful for this opportunity.",
+    "Negative 😔": "I feel like nobody cares anymore. What's the point of trying?",
+    "Neutral 😐": "Going to the grocery store to buy some milk and eggs."
+}
 
 # Load model & tokenizer
 @st.cache_resource
 def load_model_and_tokenizer():
     try:
-        # Load the model - this works with both Keras 2 and Keras 3
         model = load_model("lstm_model.h5")
-        
-        # Load tokenizer
         with open("tokenizer.pkl", "rb") as f:
             tokenizer = pickle.load(f)
-        
         st.success("✅ Model and tokenizer loaded successfully!")
         return model, tokenizer
-        
     except Exception as e:
         st.error(f"❌ Error loading model or tokenizer: {str(e)}")
         st.info("Make sure 'lstm_model.h5' and 'tokenizer.pkl' are in your repository.")
@@ -252,17 +350,48 @@ model, tokenizer = load_model_and_tokenizer()
 # Main app layout
 with st.container():
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
-    st.markdown("## Suicidal Tweet Detector")
+    
+    # Header
+    st.markdown("## 🧠 Suicidal Tweet Detector")
     st.markdown("""
     This tool uses an LSTM model to analyze the emotional tone of tweets and detect possible suicidal ideation.  
     _Enter a tweet below to begin._
     """, unsafe_allow_html=True)
 
-    # Input
-    user_input = st.text_area("Type your tweet here:", height=150, placeholder="Enter tweet text to analyze...")
+    # Quick sample tweets section
+    with st.expander("💡 Try Sample Tweets"):
+        st.markdown("Click a button to test with example tweets:")
+        cols = st.columns(3)
+        for idx, (label, tweet) in enumerate(SAMPLE_TWEETS.items()):
+            with cols[idx]:
+                if st.button(label, key=f"sample_{idx}", use_container_width=True):
+                    st.session_state.sample_tweet = tweet
 
-    # 🔎 Analyze
-    if st.button("🔍 Analyze Tweet"):
+    # Input with clear functionality
+    default_value = st.session_state.get('sample_tweet', '')
+    user_input = st.text_area(
+        "Type your tweet here:", 
+        height=150, 
+        placeholder="Enter tweet text to analyze...",
+        value=default_value
+    )
+    
+    # Clear the sample tweet after it's loaded
+    if 'sample_tweet' in st.session_state:
+        del st.session_state.sample_tweet
+
+    # Button row with analyze and clear
+    col1, col2 = st.columns([3, 1])
+    
+    with col1:
+        analyze_button = st.button("🔍 Analyze Tweet", use_container_width=True)
+    
+    with col2:
+        if st.button("🗑️ Clear", use_container_width=True):
+            st.rerun()
+
+    # Analysis logic
+    if analyze_button:
         if user_input.strip() == "":
             st.warning("⚠️ Please enter some text before analyzing.")
         else:
@@ -276,31 +405,96 @@ with st.container():
                 end_time = time.time()
                 elapsed_ms = (end_time - start_time) * 1000
 
-            label = "🟥 Suicidal / Negative" if prob < 0.5 else "🟩 Non-Suicidal / Positive"
+            # Determine result and confidence level
+            if prob < 0.5:
+                label = "🟥 Suicidal / High Risk"
+                emoji = "🔴"
+                color = "#ff6b6b"
+                risk_level = "HIGH RISK"
+            else:
+                label = "🟩 Non-Suicidal / Low Risk"
+                emoji = "🟢"
+                color = "#51cf66"
+                risk_level = "LOW RISK"
+            
+            # Confidence level
+            confidence_pct = prob if prob >= 0.5 else (1 - prob)
+            if confidence_pct >= 0.8:
+                conf_label = "High Confidence"
+                conf_class = "confidence-high"
+            elif confidence_pct >= 0.6:
+                conf_label = "Medium Confidence"
+                conf_class = "confidence-medium"
+            else:
+                conf_label = "Low Confidence"
+                conf_class = "confidence-low"
 
-            st.markdown("### Prediction:")
-            st.markdown(f"<h2>{label}</h2>", unsafe_allow_html=True)
-            st.progress(int(prob * 100))
-            st.markdown(f"**Confidence:** `{prob:.2%}`")
-
+            # Display results
+            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+            
+            st.markdown(f'<div style="text-align: center; font-size: 4rem; margin: 1rem 0;">{emoji}</div>', unsafe_allow_html=True)
+            st.markdown(f'<h2 style="color: {color}; text-align: center; margin: 1rem 0;">{label}</h2>', unsafe_allow_html=True)
+            
+            st.markdown("---")
+            
+            # Risk level indicator
+            st.markdown(f"**Risk Assessment:** {risk_level}")
+            st.progress(int(prob * 100) if prob >= 0.5 else int((1 - prob) * 100))
+            
+            # Confidence badge
+            st.markdown(
+                f'<div style="text-align: center; margin: 1rem 0;"><span class="confidence-badge {conf_class}">{conf_label}: {confidence_pct:.1%}</span></div>',
+                unsafe_allow_html=True
+            )
+            
+            # Response time
             st.markdown(
                 f"""
-                <div style="
-                    margin-top:20px;
-                    display:inline-block;
-                    padding:10px 24px;
-                    border-radius:999px;
-                    background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);
-                    color:#0b1727;
-                    font-size:15px;
-                    font-weight:600;
-                    box-shadow:0 6px 20px rgba(67,233,123,0.5);
-                ">
-                    ⚡ Response time: {elapsed_ms:.1f} ms
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <div style="
+                        display:inline-block;
+                        padding:10px 24px;
+                        border-radius:999px;
+                        background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);
+                        color:#0b1727;
+                        font-size:15px;
+                        font-weight:600;
+                        box-shadow:0 6px 20px rgba(67,233,123,0.5);
+                    ">
+                        ⚡ Analyzed in {elapsed_ms:.1f}ms
+                    </div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Crisis resources if high risk
+            if prob < 0.5:
+                st.info("⚠️ **Important**: This tool is for informational purposes only. If you or someone you know is in crisis, please seek help immediately.")
 
-    st.markdown('<div class="footer">Built with ❤️ using Streamlit + LSTM • Stay safe, stay kind</div>', unsafe_allow_html=True)
+    # Crisis Resources Section
+    with st.expander("🆘 Crisis Resources & Support"):
+        st.markdown("""
+        ### If you need immediate help:
+        
+        **🇺🇸 United States:**
+        - **National Suicide Prevention Lifeline:** 988
+        - **Crisis Text Line:** Text HOME to 741741
+        
+        **🇬🇧 United Kingdom:**
+        - **Samaritans:** 116 123
+        
+        **🌍 International:**
+        - **International Association for Suicide Prevention:** [findahelpline.com](https://findahelpline.com)
+        
+        ### Remember:
+        - You are not alone
+        - Help is available 24/7
+        - Speaking to someone can make a difference
+        """)
+
+    # Footer
+    st.markdown('<div class="footer">Built with ❤️ using Streamlit + LSTM • Mental Health Awareness • Stay safe, stay kind</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
