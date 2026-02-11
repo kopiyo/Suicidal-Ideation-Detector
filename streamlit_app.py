@@ -22,18 +22,14 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* ── Kill ALL Streamlit top chrome ── */
-#MainMenu, footer, header { visibility: hidden; height: 0 !important; }
+#MainMenu, footer, header { visibility: hidden; }
 .stAlert { display: none !important; }
-[data-testid="stHeader"]          { display: none !important; height: 0 !important; }
-[data-testid="stToolbar"]         { display: none !important; height: 0 !important; }
-[data-testid="stDecoration"]      { display: none !important; height: 0 !important; }
+[data-testid="stHeader"]          { display: none !important; }
+[data-testid="stToolbar"]         { display: none !important; }
+[data-testid="stDecoration"]      { display: none !important; }
 [data-testid="stStatusWidget"]    { display: none !important; }
 .reportview-container .main .block-container { padding-top: 0 !important; }
 div[data-testid="stAppViewBlockContainer"] > div:first-child { padding-top: 0 !important; }
-section[data-testid="stSidebar"] + div { padding-top: 0 !important; }
-.stAppViewBlockContainer { padding-top: 0 !important; margin-top: 0 !important; }
-div[class*="block-container"] { padding-top: 0 !important; }
-#root > div:first-child { padding-top: 0 !important; }
 
 /* ── Viewport lock ── */
 html, body {
@@ -66,7 +62,7 @@ html, body {
 /* ── Block container: zero top padding ── */
 .main .block-container {
     max-width: 100% !important;
-    padding: 0 0.8rem 0.2rem 0.8rem !important;
+    padding: 0.4rem 0.8rem 0.4rem 0.8rem !important;
     margin: 0 !important;
     height: 100vh;
     overflow: hidden;
@@ -184,7 +180,16 @@ a      { color: #d8b4fe !important; }
     border-radius: 0 0 9px 9px !important; padding: 0.55rem !important;
 }
 
-/* ── Support pill cards ── */
+/* ── Crisis card ── */
+.crisis-card {
+    background: rgba(255,255,255,0.09);
+    border-radius: 10px; padding: 0.5rem 0.6rem;
+    margin: 0.2rem 0; border: 1px solid rgba(255,255,255,0.15);
+    font-size: 0.74rem; line-height: 1.65;
+}
+.crisis-card a { color: #d8b4fe !important; }
+
+/* ── Immediate support pill cards ── */
 .support-pill {
     background: rgba(255,255,255,0.1);
     border-radius: 10px; padding: 0.42rem 0.55rem;
@@ -193,19 +198,6 @@ a      { color: #d8b4fe !important; }
     text-align: center;
 }
 .support-pill strong { display: block; margin-bottom: 0.15rem; font-size: 0.74rem; }
-
-/* ── Remember card ── */
-.remember-card {
-    background: rgba(255,255,255,0.07);
-    border-radius: 10px; padding: 0.45rem 0.65rem;
-    border: 1px solid rgba(255,255,255,0.13);
-    font-size: 0.72rem; line-height: 1.9;
-    text-align: center; margin-top: 0.4rem;
-}
-.remember-card span {
-    color: rgba(255,255,255,0.82) !important;
-    display: inline-block; margin: 0 0.3rem;
-}
 
 /* ── Result card ── */
 .result-card {
@@ -389,15 +381,14 @@ is_high_risk = False
 # ── COL A — Input ────────────────────────────────────────────────────────────
 with colA:
     st.markdown("""
-    <div class="app-header">
-        <span class="app-header-icon">🧠</span>
+    <div class="app-header">        
         <span class="app-header-title">Suicidal Tweet Detector</span>
     </div>
     <p class="app-subtitle">LSTM model · detects suicidal ideation in tweets.<br><em>Enter text or pick a sample to begin.</em></p>
     <hr class="divider">
     """, unsafe_allow_html=True)
 
-    with st.expander("✨ Sample Tweets", expanded=False):
+    with st.expander(" Try Sample Tweet", expanded=False):
         for label, tweet in SAMPLE_TWEETS.items():
             if st.button(label, key=f"sample_{label}", use_container_width=True):
                 st.session_state.user_input     = tweet
@@ -406,7 +397,7 @@ with colA:
                 st.rerun()
 
     user_input = st.text_area(
-        "📝 Your tweet:",
+        "Enter Your Tweet Here to Begin:",
         height=108,
         placeholder="Type or paste a tweet here…",
         value=st.session_state.user_input,
@@ -443,7 +434,7 @@ with colB:
     <p style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.85);margin:0 0 0.25rem;letter-spacing:0.5px">
         🆘 CRISIS HELPLINES — Available 24/7
     </p>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.25rem;margin-bottom:0.3rem">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.25rem;margin-bottom:0.4rem">
         <div class="support-pill"><strong>🇰🇪 Kenya</strong>📞 <em>Kenya Red Cross</em><br>1199<br>📞 <em>Befrienders</em><br>+254 722 178 177</div>
         <div class="support-pill"><strong>🇺🇸 US</strong>📞 <em>Suicide & Crisis Lifeline</em><br>988<br>💬 <em>Crisis Text Line</em><br>HOME → 741741</div>
         <div class="support-pill"><strong>🇬🇧 UK</strong>📞 <em>Samaritans</em><br>116 123</div>
@@ -487,44 +478,23 @@ with colB:
             unsafe_allow_html=True
         )
         st.markdown(
-            f'<div style="text-align:center;margin:0.25rem 0 0.4rem">'
-            f'<span style="background:linear-gradient(135deg,#43e97b,#38f9d7);color:#0b1727;padding:4px 14px;'
-            f'border-radius:999px;font-size:0.68rem;font-weight:600">⚡ {r["ms"]:.1f}ms</span></div>',
+            f'<div style="text-align:center;margin:0.25rem 0 0.4rem"><span style="background:linear-gradient(135deg,#43e97b,#38f9d7);color:#0b1727;padding:4px 14px;border-radius:999px;font-size:0.68rem;font-weight:600">⚡ {r["ms"]:.1f}ms</span></div>',
             unsafe_allow_html=True
         )
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # ── Compact download row ─────────────────────────────────────────────
-        res_txt_full = (f"Tweet:\n{r['text']}\n\nPrediction: {label.strip()}\n"
-                        f"Risk: {risk_lbl}\nConfidence: {conf:.1%}\n"
-                        f"Latency: {r['ms']:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        dl1, dl2 = st.columns([1, 1])
-        with dl1:
-            st.download_button("📄 Download Result", res_txt_full, file_name="analysis.txt", use_container_width=True)
-        with dl2:
-            st.markdown(
-                f'<div style="background:rgba(0,0,0,0.25);border-radius:10px;padding:0.35rem 0.6rem;'
-                f'font-size:0.65rem;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);'
-                f'text-align:center;margin-top:0.25rem">📋 {risk_lbl} · {conf:.1%} · ⚡{r["ms"]:.0f}ms</div>',
-                unsafe_allow_html=True
-            )
+        res_txt = (f"Tweet:\n{r['text']}\n\nPrediction: {label.strip()}\n"
+                   f"Risk: {risk_lbl}\nConfidence: {conf:.1%}\n"
+                   f"Latency: {r['ms']:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        st.text_area("📋 Copy result:", res_txt, height=72)
+        st.download_button("📄 Download Result", res_txt, file_name="analysis.txt", use_container_width=True)
 
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
         if is_high_risk:
             st.error("🚨 **CRISIS ALERT** — High-risk content detected! Please use the helplines above.")
 
-    # ── Always-visible Remember message (BOTTOM of col B) ───────────────────
-    st.markdown("""
-    <div class="remember-card">
-        <strong style="font-size:0.74rem;color:#fff;display:block;margin-bottom:0.15rem">💙 Remember</strong>
-        <span>🤝 You are not alone</span>
-        <span style="color:rgba(255,255,255,0.35)">·</span>
-        <span>🕐 Help is available 24/7</span>
-        <span style="color:rgba(255,255,255,0.35)">·</span>
-        <span>💬 Speaking to someone can make a difference</span>
-    </div>
-    """, unsafe_allow_html=True)
+    # Crisis resources moved to top of this column — always visible above
 
 
 # ── COL C — Analytics ────────────────────────────────────────────────────────
@@ -570,6 +540,7 @@ with colC:
         st.markdown('<p style="font-size:0.74rem;font-weight:600;margin-bottom:0.2rem">📝 Recent Analyses</p>', unsafe_allow_html=True)
 
         for item in reversed(a['history'][-5:]):
+            # ── FIX: use .get() with safe defaults to prevent KeyError ──
             cls  = item.get('cls',  'Unknown')
             ts   = item.get('ts',   '')
             prob = item.get('prob', 0.0)
