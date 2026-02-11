@@ -8,7 +8,6 @@ from tensorflow.keras.models import load_model
 # Page configuration
 st.set_page_config(
     page_title="Suicidal Tweet Detector",
-    page_icon="🧠",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
