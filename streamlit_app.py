@@ -407,12 +407,12 @@ with st.container():
 
             # Determine result and confidence level
             if prob < 0.5:
-                label = "🟥 Suicidal / High Risk"
+                label = " Suicidal / High Risk"
                 emoji = "🔴"
                 color = "#ff6b6b"
                 risk_level = "HIGH RISK"
             else:
-                label = "🟩 Non-Suicidal / Low Risk"
+                label = " Non-Suicidal / Low Risk"
                 emoji = "🟢"
                 color = "#51cf66"
                 risk_level = "LOW RISK"
