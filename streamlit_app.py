@@ -1,13 +1,9 @@
 import streamlit as st
 import pickle
 import numpy as np
-import time  # NEW
-from tensorflow.keras.utils import pad_sequences
-
+import time
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
-from keras.models import Sequential
-from keras.layers import Dense
-
 
 # Page configuration
 st.set_page_config(
@@ -78,10 +74,27 @@ st.markdown("""
 # Load model & tokenizer
 @st.cache_resource
 def load_model_and_tokenizer():
-    model = load_model("lstm_model.keras")
-    with open("tokenizer.pkl", "rb") as f:
-        tokenizer = pickle.load(f)
-    return model, tokenizer
+    try:
+        # Load model without compiling to avoid version issues
+        model = load_model("lstm_model.keras", compile=False)
+        
+        # Recompile the model
+        model.compile(
+            optimizer='adam',
+            loss='binary_crossentropy',
+            metrics=['accuracy']
+        )
+        
+        # Load tokenizer
+        with open("tokenizer.pkl", "rb") as f:
+            tokenizer = pickle.load(f)
+        
+        return model, tokenizer
+        
+    except Exception as e:
+        st.error(f"Error loading model or tokenizer: {str(e)}")
+        st.info("Please check that 'lstm_model.keras' and 'tokenizer.pkl' exist in your repository.")
+        raise
 
 model, tokenizer = load_model_and_tokenizer()
 
@@ -102,16 +115,16 @@ with st.container():
         if user_input.strip() == "":
             st.warning("Please enter some text before analyzing.")
         else:
-            # NEW: show loading spinner + measure time
+            # Show loading spinner + measure time
             with st.spinner("Analyzing tweet…"):
-                start_time = time.time()  # NEW
+                start_time = time.time()
 
                 sequence = tokenizer.texts_to_sequences([user_input])
                 padded = pad_sequences(sequence, maxlen=100)
-                prob = model.predict(padded)[0][0]
+                prob = model.predict(padded, verbose=0)[0][0]
 
-                end_time = time.time()  # NEW
-                elapsed_ms = (end_time - start_time) * 1000  # NEW
+                end_time = time.time()
+                elapsed_ms = (end_time - start_time) * 1000
 
             label = "🟥 Suicidal / Negative" if prob < 0.5 else "🟩 Non-Suicidal / Positive"
 
@@ -120,7 +133,7 @@ with st.container():
             st.progress(int(prob * 100))
             st.markdown(f"**Confidence:** `{prob:.2%}`")
 
-            # NEW: colorful response-time badge
+            # Colorful response-time badge
             st.markdown(
                 f"""
                 <div style="
