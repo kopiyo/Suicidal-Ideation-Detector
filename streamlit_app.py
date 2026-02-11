@@ -5,6 +5,9 @@ import time  # NEW
 from tensorflow.keras.utils import pad_sequences
 
 from tensorflow.keras.models import load_model
+from keras.models import Sequential
+from keras.layers import Dense
+
 
 # Page configuration
 st.set_page_config(
