@@ -36,7 +36,42 @@ st.markdown("""
         animation: gradientShift 15s ease infinite;
         font-family: 'Inter', 'Segoe UI', sans-serif;
     }
-    
+    /* Result summary glass card */
+.summary-card {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+    margin: 1.5rem 0 0.5rem 0;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+/* Make the summary textarea match your theme */
+.summary-card .stTextArea textarea {
+    background: rgba(0, 0, 0, 0.30) !important;
+    border: 2px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 16px !important;
+    color: #fff !important;
+}
+
+/* Title inside summary card */
+.summary-title {
+    color: rgba(255,255,255,0.95);
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 0.8rem;
+    text-align: center;
+}
+
+/* Center the download button in the card */
+.summary-card .stDownloadButton {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.8rem;
+}
+
     @keyframes gradientShift {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
