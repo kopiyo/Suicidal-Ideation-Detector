@@ -81,7 +81,7 @@ st.markdown("""
     /* Main container - enhanced glassmorphism */
     .main .block-container {
         max-width: 850px;
-        padding: 3rem 2.5rem;
+        padding: 2rem 2rem;
         background: rgba(255, 255, 255, 0.12);
         border-radius: 30px;
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.4);
