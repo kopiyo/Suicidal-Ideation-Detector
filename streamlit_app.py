@@ -267,6 +267,24 @@ st.markdown("""
         font-weight: 600;
         margin: 0.5rem;
     }
+    /* Make download button match Analyze button */
+.stDownloadButton > button {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    padding: 0.85rem 3.5rem !important;
+    border-radius: 50px !important;
+    border: none !important;
+    font-size: 1.05rem !important;
+    box-shadow: 0 10px 30px rgba(245, 87, 108, 0.5) !important;
+    transition: all 0.3s ease !important;
+}
+
+.stDownloadButton > button:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 15px 45px rgba(245, 87, 108, 0.7) !important;
+}
+
     
     .confidence-high {
         background: linear-gradient(135deg, #11998e, #38ef7d);
