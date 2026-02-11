@@ -7,6 +7,9 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
 import plotly.graph_objects as go
 import plotly.express as px
+from PIL import Image
+import pytesseract
+import io
 
 # ─── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -144,6 +147,38 @@ a      { color: #d8b4fe !important; }
 }
 .stTextArea textarea::placeholder { color: rgba(255,255,255,0.38) !important; font-style: italic; }
 
+/* ── File uploader ── */
+[data-testid="stFileUploader"] label {
+    color: #fff !important; font-weight: 600 !important; font-size: 0.78rem !important;
+}
+[data-testid="stFileUploader"] section {
+    background: rgba(0,0,0,0.2) !important;
+    border: 1.5px dashed rgba(255,255,255,0.3) !important;
+    border-radius: 12px !important;
+    padding: 0.5rem !important;
+}
+[data-testid="stFileUploader"] section:hover {
+    border-color: rgba(200,150,255,0.6) !important;
+    background: rgba(0,0,0,0.3) !important;
+}
+[data-testid="stFileUploader"] section p {
+    font-size: 0.72rem !important; color: rgba(255,255,255,0.6) !important;
+}
+
+/* ── Input mode tabs ── */
+.input-tab {
+    display: inline-block; padding: 0.2rem 0.7rem;
+    border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+    cursor: pointer; margin-right: 0.3rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.06);
+}
+.input-tab.active {
+    background: linear-gradient(135deg,#c084fc,#f472b6);
+    color: #fff; border-color: transparent;
+}
+
 /* ── Buttons ── */
 .stButton { margin: 0.25rem 0; }
 .stButton > button {
@@ -198,6 +233,19 @@ a      { color: #d8b4fe !important; }
     text-align: center;
 }
 .support-pill strong { display: block; margin-bottom: 0.15rem; font-size: 0.74rem; }
+
+/* ── Remember card ── */
+.remember-card {
+    background: rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 0.45rem 0.65rem;
+    border: 1px solid rgba(255,255,255,0.13);
+    font-size: 0.72rem; line-height: 1.9;
+    text-align: center; margin-top: 0.4rem;
+}
+.remember-card span {
+    color: rgba(255,255,255,0.82) !important;
+    display: inline-block; margin: 0 0.3rem;
+}
 
 /* ── Result card ── */
 .result-card {
@@ -282,6 +330,7 @@ if 'analytics' not in st.session_state:
 if 'user_input'     not in st.session_state: st.session_state.user_input     = ""
 if 'should_analyze' not in st.session_state: st.session_state.should_analyze = False
 if 'last_result'    not in st.session_state: st.session_state.last_result    = None
+if 'input_mode'     not in st.session_state: st.session_state.input_mode     = "text"  # "text" or "image"
 
 # ─── Patch stale history entries (fixes KeyError on reloads) ──────────────────
 for entry in st.session_state.analytics.get('history', []):
@@ -337,6 +386,15 @@ def run_analysis(text):
     update_analytics(prob, text)
     return float(prob), ms
 
+def extract_text_from_image(image_file):
+    """Extract text from uploaded image using OCR (pytesseract)."""
+    try:
+        img = Image.open(image_file).convert("RGB")
+        text = pytesseract.image_to_string(img, config='--psm 6')
+        return text.strip()
+    except Exception as e:
+        return None
+
 def gauge(prob):
     if prob >= 0.5:
         intensity = (prob - 0.5) * 2
@@ -381,47 +439,104 @@ is_high_risk = False
 # ── COL A — Input ────────────────────────────────────────────────────────────
 with colA:
     st.markdown("""
-    <div class="app-header">        
+    <div class="app-header">
         <span class="app-header-title">Suicidal Tweet Detector</span>
     </div>
-    <p class="app-subtitle">LSTM model · detects suicidal ideation in tweets.<br><em>Enter text or pick a sample to begin.</em></p>
+    <p class="app-subtitle">LSTM model · detects suicidal ideation in tweets.<br><em>Enter text or upload a screenshot to begin.</em></p>
     <hr class="divider">
     """, unsafe_allow_html=True)
 
-    with st.expander(" Try Sample Tweet", expanded=False):
-        for label, tweet in SAMPLE_TWEETS.items():
-            if st.button(label, key=f"sample_{label}", use_container_width=True):
-                st.session_state.user_input     = tweet
-                st.session_state["text_area"]   = tweet
-                st.session_state.should_analyze = True
-                st.rerun()
+    # ── Input mode toggle ────────────────────────────────────────────────────
+    mode_col1, mode_col2 = st.columns(2)
+    with mode_col1:
+        if st.button("✏️ Type Text",
+                     use_container_width=True,
+                     type="primary" if st.session_state.input_mode == "text" else "secondary"):
+            st.session_state.input_mode = "text"
+            st.rerun()
+    with mode_col2:
+        if st.button("🖼️ Upload Image",
+                     use_container_width=True,
+                     type="primary" if st.session_state.input_mode == "image" else "secondary"):
+            st.session_state.input_mode = "image"
+            st.rerun()
 
-    user_input = st.text_area(
-        "Enter Your Tweet Here to Begin:",
-        height=108,
-        placeholder="Type or paste a tweet here…",
-        value=st.session_state.user_input,
-        key="text_area"
-    )
-    st.session_state.user_input = user_input
+    st.markdown('<div style="margin-top:0.3rem"></div>', unsafe_allow_html=True)
 
-    b1, b2 = st.columns([1.6, 1])
-    with b1: analyze_btn = st.button("🔍 Analyze", use_container_width=True)
-    with b2: st.button("🗑️ Clear", use_container_width=True, on_click=clear_text)
+    # ── TEXT MODE ────────────────────────────────────────────────────────────
+    if st.session_state.input_mode == "text":
 
-    if analyze_btn:
-        if user_input.strip():
-            p, ms = run_analysis(user_input)
-            st.session_state.last_result = {'prob': p, 'ms': ms, 'text': user_input, 'ok': True}
-        else:
-            st.session_state.last_result = {'ok': False, 'empty': True}
-        st.rerun()
+        with st.expander(" Try Sample Tweet", expanded=False):
+            for label, tweet in SAMPLE_TWEETS.items():
+                if st.button(label, key=f"sample_{label}", use_container_width=True):
+                    st.session_state.user_input     = tweet
+                    st.session_state["text_area"]   = tweet
+                    st.session_state.should_analyze = True
+                    st.rerun()
 
-    if st.session_state.should_analyze and st.session_state.user_input.strip():
-        st.session_state.should_analyze = False
-        p, ms = run_analysis(st.session_state.user_input)
-        st.session_state.last_result = {'prob': p, 'ms': ms, 'text': st.session_state.user_input, 'ok': True}
-        st.rerun()
+        user_input = st.text_area(
+            "Enter Your Tweet Here to Begin:",
+            height=108,
+            placeholder="Type or paste a tweet here…",
+            value=st.session_state.user_input,
+            key="text_area"
+        )
+        st.session_state.user_input = user_input
+
+        b1, b2 = st.columns([1.6, 1])
+        with b1: analyze_btn = st.button("🔍 Analyze", use_container_width=True, key="analyze_text")
+        with b2: st.button("🗑️ Clear", use_container_width=True, on_click=clear_text)
+
+        if analyze_btn:
+            if user_input.strip():
+                p, ms = run_analysis(user_input)
+                st.session_state.last_result = {'prob': p, 'ms': ms, 'text': user_input, 'ok': True}
+            else:
+                st.session_state.last_result = {'ok': False, 'empty': True}
+            st.rerun()
+
+        if st.session_state.should_analyze and st.session_state.user_input.strip():
+            st.session_state.should_analyze = False
+            p, ms = run_analysis(st.session_state.user_input)
+            st.session_state.last_result = {'prob': p, 'ms': ms, 'text': st.session_state.user_input, 'ok': True}
+            st.rerun()
+
+    # ── IMAGE MODE ───────────────────────────────────────────────────────────
+    else:
+        st.markdown(
+            '<p style="font-size:0.75rem;font-weight:600;margin-bottom:0.2rem">📸 Upload a screenshot:</p>',
+            unsafe_allow_html=True
+        )
+        uploaded_file = st.file_uploader(
+            "Upload screenshot",
+            type=["png", "jpg", "jpeg", "webp"],
+            label_visibility="collapsed"
+        )
+
+        if uploaded_file:
+            img = Image.open(uploaded_file)
+            st.image(img, use_container_width=True, caption="Uploaded screenshot")
+
+        img_b1, img_b2 = st.columns([1.6, 1])
+        with img_b1:
+            analyze_img_btn = st.button("🔍 Analyze Image", use_container_width=True, key="analyze_image")
+        with img_b2:
+            st.button("🗑️ Clear", use_container_width=True, on_click=clear_text, key="clear_image")
+
+        if analyze_img_btn:
+            if uploaded_file:
+                with st.spinner("Reading text from image…"):
+                    extracted = extract_text_from_image(uploaded_file)
+                if extracted:
+                    p, ms = run_analysis(extracted)
+                    st.session_state.last_result = {
+                        'prob': p, 'ms': ms, 'text': extracted, 'ok': True, 'from_image': True
+                    }
+                else:
+                    st.session_state.last_result = {'ok': False, 'ocr_fail': True}
+            else:
+                st.session_state.last_result = {'ok': False, 'no_image': True}
+            st.rerun()
 
     st.markdown('<div class="col-footer">Built with ❤️ Streamlit + LSTM · Mental Health Awareness</div>', unsafe_allow_html=True)
 
@@ -445,12 +560,28 @@ with colB:
 
     r = st.session_state.last_result
 
-    if r and r.get('ok') is False and r.get('empty'):
-        st.warning("⚠️ Please enter some text first.")
+    # ── Error states ─────────────────────────────────────────────────────────
+    if r and r.get('ok') is False:
+        if r.get('empty'):
+            st.warning("⚠️ Please enter some text first.")
+        elif r.get('no_image'):
+            st.warning("⚠️ Please upload an image first.")
+        elif r.get('ocr_fail'):
+            st.warning("⚠️ Could not read text from the image. Try a clearer screenshot.")
 
     if r and r.get('ok'):
         prob = r['prob']
         is_high_risk = prob < 0.5
+
+        # Show OCR source badge if result came from image
+        if r.get('from_image'):
+            st.markdown(
+                '<div style="text-align:center;margin-bottom:0.3rem">'
+                '<span style="background:rgba(99,102,241,0.35);color:#c7d2fe;padding:3px 12px;'
+                'border-radius:999px;font-size:0.67rem;font-weight:600;border:1px solid rgba(99,102,241,0.4)">'
+                '🖼️ Result from image OCR</span></div>',
+                unsafe_allow_html=True
+            )
 
         label    = "🔴 Suicidal / Negative"  if prob < 0.5 else "🟢 Non-Suicidal / Positive"
         color    = "#f87171"                  if prob < 0.5 else "#34d399"
@@ -494,7 +625,17 @@ with colB:
         if is_high_risk:
             st.error("🚨 **CRISIS ALERT** — High-risk content detected! Please use the helplines above.")
 
-    # Crisis resources moved to top of this column — always visible above
+    # ── Always-visible Remember message (BOTTOM of col B) ───────────────────
+    st.markdown("""
+    <div class="remember-card">
+        <strong style="font-size:0.74rem;color:#fff;display:block;margin-bottom:0.15rem">💙 Remember</strong>
+        <span>🤝 You are not alone</span>
+        <span style="color:rgba(255,255,255,0.35)">·</span>
+        <span>🕐 Help is available 24/7</span>
+        <span style="color:rgba(255,255,255,0.35)">·</span>
+        <span>💬 Speaking to someone can make a difference</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # ── COL C — Analytics ────────────────────────────────────────────────────────
@@ -540,7 +681,6 @@ with colC:
         st.markdown('<p style="font-size:0.74rem;font-weight:600;margin-bottom:0.2rem">📝 Recent Analyses</p>', unsafe_allow_html=True)
 
         for item in reversed(a['history'][-5:]):
-            # ── FIX: use .get() with safe defaults to prevent KeyError ──
             cls  = item.get('cls',  'Unknown')
             ts   = item.get('ts',   '')
             prob = item.get('prob', 0.0)
