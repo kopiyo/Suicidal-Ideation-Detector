@@ -670,7 +670,7 @@ with st.container():
                 st.error("🚨 **CRISIS ALERT**: High-risk content detected!")
                 st.markdown("### 🆘 Immediate Support Available")
 
-                c1, c2, c3 = st.columns(3)
+                c1, c2, c3, c4 = st.columns(4)
                 with c1:
                     st.markdown("""
                     <div class="crisis-phone">
@@ -693,6 +693,14 @@ with st.container():
                     <strong>🇬🇧 UK</strong><br>
                     📞 116 123<br>
                     (Samaritans)
+                    </div>
+                    """, unsafe_allow_html=True)
+                with c4:
+                    st.markdown("""
+                    <div class="crisis-phone">
+                    <strong>🌍 International</strong><br>
+                    🔗 <a href="https://findahelpline.com" target="_blank" style="color: #f093fb;">findahelpline.com</a><br>
+                    (IASP Directory)
                     </div>
                     """, unsafe_allow_html=True)
 
