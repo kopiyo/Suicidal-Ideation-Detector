@@ -1,7 +1,6 @@
 # Suicidal-Ideation-Detector
 A web-based machine learning application that analyzes user-provided text to identify potential suicidal ideas using natural language processing techniques. This is important for early detection and prevention efforts, thus minimizing suicide related death cases. 
 
-![image alt](https://github.com/kopiyo/Suicidal-Ideation-Detector/blob/main/Suicide%20Detector.png?raw=true)
 
 
 The figure above shows the main interface of the Suicidal Tweet Detector web application. The application provides a text input area where users can enter tweet content for analysis. The system is built using a machine learning model based on LSTM architecture to analyze the emotional tone of the input text and identify potential suicidal ideation and classifies whether a tweet is negative or positive. The simple and user-friendly design allows for easy interaction and quick analysis.
