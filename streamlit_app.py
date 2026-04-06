@@ -11,7 +11,6 @@ from PIL import Image
 import pytesseract
 import io
 
-# ─── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Suicidal Tweet Detector",
     page_icon="🧠",
@@ -19,7 +18,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ─── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -154,7 +152,8 @@ a      { color: #d8b4fe !important; }
 }
 
 .stButton { margin: 0.25rem 0; }
-.stButton > button {
+.stButton > button,
+[data-testid="stDownloadButton"] > button {
     background: linear-gradient(135deg, #c084fc 0%, #f472b6 100%) !important;
     color: #fff !important; font-weight: 600 !important;
     padding: 0 1rem !important; border-radius: 50px !important;
@@ -163,37 +162,10 @@ a      { color: #d8b4fe !important; }
     transition: all 0.25s ease !important;
     width: 100%; height: 36px;
 }
-.stButton > button:hover {
+.stButton > button:hover,
+[data-testid="stDownloadButton"] > button:hover {
     transform: translateY(-2px) !important;
     box-shadow: 0 7px 20px rgba(196,100,252,0.6) !important;
-}
-
-/* ── Download button small for col C ── */
-.small-download [data-testid="stDownloadButton"],
-.small-download [data-testid="stDownloadButton"] * {
-    all: unset !important;
-}
-.small-download [data-testid="stDownloadButton"] > button {
-    background: linear-gradient(135deg, #c084fc 0%, #f472b6 100%) !important;
-    color: #fff !important;
-    font-weight: 600 !important;
-    font-family: 'Inter', sans-serif !important;
-    border-radius: 50px !important;
-    border: none !important;
-    font-size: 0.68rem !important;
-    width: 100% !important;
-    height: 28px !important;
-    box-shadow: 0 2px 8px rgba(196,100,252,0.4) !important;
-    padding: 0 0.6rem !important;
-    cursor: pointer !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-}
-.small-download [data-testid="stDownloadButton"] > button:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 14px rgba(196,100,252,0.6) !important;
 }
 
 .streamlit-expanderHeader {
@@ -419,7 +391,7 @@ def gauge(prob):
 colA, colB, colC = st.columns([1.0, 1.25, 1.05])
 is_high_risk = False
 
-# ── COL A — Input ────────────────────────────────────────────────────────────
+# ── COL A ────────────────────────────────────────────────────────────────────
 with colA:
     st.markdown("""
     <div class="app-header">
@@ -445,7 +417,6 @@ with colA:
 
     st.markdown('<div style="margin-top:0.3rem"></div>', unsafe_allow_html=True)
 
-    # ── TEXT MODE ────────────────────────────────────────────────────────────
     if st.session_state.input_mode == "text":
 
         with st.expander(" Try Sample Tweet", expanded=False):
@@ -485,7 +456,6 @@ with colA:
             st.session_state.download_text = build_download_text(st.session_state.user_input, p, ms)
             st.rerun()
 
-    # ── IMAGE MODE ───────────────────────────────────────────────────────────
     else:
         st.markdown(
             '<p style="font-size:0.75rem;font-weight:600;margin-bottom:0.2rem">📸 Upload a screenshot:</p>',
@@ -524,7 +494,7 @@ with colA:
     st.markdown('<div class="col-footer">Built with ❤️ Streamlit + LSTM · Mental Health Awareness</div>', unsafe_allow_html=True)
 
 
-# ── COL B — Crisis info + Result ────────────────────────────────────────────
+# ── COL B ────────────────────────────────────────────────────────────────────
 with colB:
 
     st.markdown("""
@@ -613,7 +583,7 @@ with colB:
     """, unsafe_allow_html=True)
 
 
-# ── COL C — Analytics ────────────────────────────────────────────────────────
+# ── COL C ────────────────────────────────────────────────────────────────────
 with colC:
     st.markdown('<h3 style="text-align:center;margin:0 0 0.4rem">📊 Analytics</h3>', unsafe_allow_html=True)
 
@@ -654,7 +624,6 @@ with colC:
 
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
-        # ── Recent Analyses header + small download button side by side ──────
         hdr_col, dl_col = st.columns([1.6, 1])
         with hdr_col:
             st.markdown(
@@ -663,7 +632,6 @@ with colC:
             )
         with dl_col:
             if st.session_state.download_text:
-                st.markdown('<div class="small-download">', unsafe_allow_html=True)
                 st.download_button(
                     "📄 Download",
                     st.session_state.download_text,
@@ -671,7 +639,6 @@ with colC:
                     use_container_width=True,
                     key="download_colC"
                 )
-                st.markdown('</div>', unsafe_allow_html=True)
 
         for item in reversed(a['history'][-5:]):
             cls   = item.get('cls',  'Unknown')
