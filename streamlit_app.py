@@ -194,12 +194,15 @@ a      { color: #d8b4fe !important; }
     transform: translateY(-2px) !important;
     box-shadow: 0 7px 20px rgba(196,100,252,0.6) !important;
 }
-.stDownloadButton > button {
+
+/* ── Download button — small version for col C ── */
+.small-download .stDownloadButton > button {
     background: linear-gradient(135deg, #c084fc 0%, #f472b6 100%) !important;
     color: #fff !important; font-weight: 600 !important;
     border-radius: 50px !important; border: none !important;
-    font-size: 0.76rem !important; width: 100%; height: 36px;
-    box-shadow: 0 4px 14px rgba(196,100,252,0.4) !important;
+    font-size: 0.68rem !important; width: 100%; height: 28px;
+    box-shadow: 0 2px 8px rgba(196,100,252,0.4) !important;
+    padding: 0 0.6rem !important;
 }
 
 /* ── Expander ── */
@@ -330,9 +333,10 @@ if 'analytics' not in st.session_state:
 if 'user_input'     not in st.session_state: st.session_state.user_input     = ""
 if 'should_analyze' not in st.session_state: st.session_state.should_analyze = False
 if 'last_result'    not in st.session_state: st.session_state.last_result    = None
-if 'input_mode'     not in st.session_state: st.session_state.input_mode     = "text"  # "text" or "image"
+if 'input_mode'     not in st.session_state: st.session_state.input_mode     = "text"
+if 'download_text'  not in st.session_state: st.session_state.download_text  = ""
 
-# ─── Patch stale history entries (fixes KeyError on reloads) ──────────────────
+# ─── Patch stale history entries ──────────────────────────────────────────────
 for entry in st.session_state.analytics.get('history', []):
     entry.setdefault('cls',  'Unknown')
     entry.setdefault('ts',   '')
@@ -359,6 +363,7 @@ def clear_text():
     st.session_state["text_area"]   = ""
     st.session_state.should_analyze = False
     st.session_state.last_result    = None
+    st.session_state.download_text  = ""
 
 def update_analytics(prob, text):
     a = st.session_state.analytics
@@ -387,7 +392,6 @@ def run_analysis(text):
     return float(prob), ms
 
 def extract_text_from_image(image_file):
-    """Extract text from uploaded image using OCR (pytesseract)."""
     try:
         img = Image.open(image_file).convert("RGB")
         text = pytesseract.image_to_string(img, config='--psm 6')
@@ -446,7 +450,6 @@ with colA:
     <hr class="divider">
     """, unsafe_allow_html=True)
 
-    # ── Input mode toggle ────────────────────────────────────────────────────
     mode_col1, mode_col2 = st.columns(2)
     with mode_col1:
         if st.button(" Type Text",
@@ -490,7 +493,14 @@ with colA:
         if analyze_btn:
             if user_input.strip():
                 p, ms = run_analysis(user_input)
-                st.session_state.last_result = {'prob': p, 'ms': ms, 'text': user_input, 'ok': True}
+                label_    = "Suicidal / Negative" if p < 0.5 else "Non-Suicidal / Positive"
+                risk_lbl_ = "HIGH RISK"            if p < 0.5 else "LOW RISK"
+                conf_     = p if p >= 0.5 else (1 - p)
+                res_txt   = (f"Tweet:\n{user_input}\n\nPrediction: {label_}\n"
+                             f"Risk: {risk_lbl_}\nConfidence: {conf_:.1%}\n"
+                             f"Latency: {ms:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                st.session_state.last_result   = {'prob': p, 'ms': ms, 'text': user_input, 'ok': True}
+                st.session_state.download_text = res_txt
             else:
                 st.session_state.last_result = {'ok': False, 'empty': True}
             st.rerun()
@@ -498,7 +508,14 @@ with colA:
         if st.session_state.should_analyze and st.session_state.user_input.strip():
             st.session_state.should_analyze = False
             p, ms = run_analysis(st.session_state.user_input)
-            st.session_state.last_result = {'prob': p, 'ms': ms, 'text': st.session_state.user_input, 'ok': True}
+            label_    = "Suicidal / Negative" if p < 0.5 else "Non-Suicidal / Positive"
+            risk_lbl_ = "HIGH RISK"            if p < 0.5 else "LOW RISK"
+            conf_     = p if p >= 0.5 else (1 - p)
+            res_txt   = (f"Tweet:\n{st.session_state.user_input}\n\nPrediction: {label_}\n"
+                         f"Risk: {risk_lbl_}\nConfidence: {conf_:.1%}\n"
+                         f"Latency: {ms:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            st.session_state.last_result   = {'prob': p, 'ms': ms, 'text': st.session_state.user_input, 'ok': True}
+            st.session_state.download_text = res_txt
             st.rerun()
 
     # ── IMAGE MODE ───────────────────────────────────────────────────────────
@@ -529,9 +546,14 @@ with colA:
                     extracted = extract_text_from_image(uploaded_file)
                 if extracted:
                     p, ms = run_analysis(extracted)
-                    st.session_state.last_result = {
-                        'prob': p, 'ms': ms, 'text': extracted, 'ok': True, 'from_image': True
-                    }
+                    label_    = "Suicidal / Negative" if p < 0.5 else "Non-Suicidal / Positive"
+                    risk_lbl_ = "HIGH RISK"            if p < 0.5 else "LOW RISK"
+                    conf_     = p if p >= 0.5 else (1 - p)
+                    res_txt   = (f"Tweet:\n{extracted}\n\nPrediction: {label_}\n"
+                                 f"Risk: {risk_lbl_}\nConfidence: {conf_:.1%}\n"
+                                 f"Latency: {ms:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    st.session_state.last_result   = {'prob': p, 'ms': ms, 'text': extracted, 'ok': True, 'from_image': True}
+                    st.session_state.download_text = res_txt
                 else:
                     st.session_state.last_result = {'ok': False, 'ocr_fail': True}
             else:
@@ -544,7 +566,6 @@ with colA:
 # ── COL B — Crisis info + Result ────────────────────────────────────────────
 with colB:
 
-    # ── Always-visible Crisis Resources (TOP of col B) ──────────────────────
     st.markdown("""
     <p style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.85);margin:0 0 0.25rem;letter-spacing:0.5px">
         🆘 CRISIS HELPLINES — Available 24/7
@@ -560,7 +581,6 @@ with colB:
 
     r = st.session_state.last_result
 
-    # ── Error states ─────────────────────────────────────────────────────────
     if r and r.get('ok') is False:
         if r.get('empty'):
             st.warning("⚠️ Please enter some text first.")
@@ -573,7 +593,6 @@ with colB:
         prob = r['prob']
         is_high_risk = prob < 0.5
 
-        # Show OCR source badge if result came from image
         if r.get('from_image'):
             st.markdown(
                 '<div style="text-align:center;margin-bottom:0.3rem">'
@@ -614,18 +633,11 @@ with colB:
         )
         st.markdown('</div>', unsafe_allow_html=True)
 
-        res_txt = (f"Tweet:\n{r['text']}\n\nPrediction: {label.strip()}\n"
-                   f"Risk: {risk_lbl}\nConfidence: {conf:.1%}\n"
-                   f"Latency: {r['ms']:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        st.text_area("📋 Copy result:", res_txt, height=72)
-        st.download_button("📄 Download Result", res_txt, file_name="analysis.txt", use_container_width=True)
-
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
         if is_high_risk:
             st.error("🚨 **CRISIS ALERT** — High-risk content detected! Please use the helplines above.")
 
-    # ── Always-visible Remember message (BOTTOM of col B) ───────────────────
     st.markdown("""
     <div class="remember-card">
         <strong style="font-size:0.74rem;color:#fff;display:block;margin-bottom:0.15rem">💙 Remember</strong>
@@ -678,7 +690,25 @@ with colC:
         st.plotly_chart(fig_pie, use_container_width=True)
 
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
-        st.markdown('<p style="font-size:0.74rem;font-weight:600;margin-bottom:0.2rem">📝 Recent Analyses</p>', unsafe_allow_html=True)
+
+        # ── Recent Analyses header + small download button side by side ──────
+        hdr_col, dl_col = st.columns([1.6, 1])
+        with hdr_col:
+            st.markdown(
+                '<p style="font-size:0.74rem;font-weight:600;margin-bottom:0.2rem;margin-top:0.1rem">📝 Recent Analyses</p>',
+                unsafe_allow_html=True
+            )
+        with dl_col:
+            if st.session_state.download_text:
+                st.markdown('<div class="small-download">', unsafe_allow_html=True)
+                st.download_button(
+                    "📄 Download",
+                    st.session_state.download_text,
+                    file_name="analysis.txt",
+                    use_container_width=True,
+                    key="download_colC"
+                )
+                st.markdown('</div>', unsafe_allow_html=True)
 
         for item in reversed(a['history'][-5:]):
             cls  = item.get('cls',  'Unknown')
