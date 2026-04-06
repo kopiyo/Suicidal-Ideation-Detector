@@ -24,7 +24,6 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* ── Kill ALL Streamlit top chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
 .stAlert { display: none !important; }
 [data-testid="stHeader"]          { display: none !important; }
@@ -34,7 +33,6 @@ st.markdown("""
 .reportview-container .main .block-container { padding-top: 0 !important; }
 div[data-testid="stAppViewBlockContainer"] > div:first-child { padding-top: 0 !important; }
 
-/* ── Viewport lock ── */
 html, body {
     height: 100vh;
     overflow: hidden;
@@ -46,7 +44,6 @@ html, body {
     padding-top: 0 !important;
 }
 
-/* ── Animated gradient background ── */
 .stApp {
     background: linear-gradient(-45deg, #4a1c8c, #764ba2, #a855f7, #6366f1);
     background-size: 400% 400%;
@@ -62,7 +59,6 @@ html, body {
     100% { background-position: 0%   50%; }
 }
 
-/* ── Block container: zero top padding ── */
 .main .block-container {
     max-width: 100% !important;
     padding: 0.4rem 0.8rem 0.4rem 0.8rem !important;
@@ -71,7 +67,6 @@ html, body {
     overflow: hidden;
 }
 
-/* ── Columns: fixed height, scroll inside ── */
 [data-testid="column"] {
     padding: 0 0.35rem !important;
     height: calc(100vh - 1rem);
@@ -86,7 +81,6 @@ html, body {
     border-radius: 4px;
 }
 
-/* ── Glass panel ── */
 [data-testid="column"]:nth-of-type(1),
 [data-testid="column"]:nth-of-type(2),
 [data-testid="column"]:nth-of-type(3) {
@@ -99,7 +93,6 @@ html, body {
     box-shadow: 0 4px 24px rgba(0,0,0,0.15);
 }
 
-/* ── Typography ── */
 h1, h2, h3, h4 {
     color: #fff !important;
     font-weight: 700 !important;
@@ -113,22 +106,18 @@ strong { color: #fff !important; font-weight: 600 !important; }
 em     { color: rgba(255,255,255,0.75) !important; font-style: italic; }
 a      { color: #d8b4fe !important; }
 
-/* ── App title ── */
 .app-header {
     display: flex; align-items: center; gap: 0.5rem;
     margin-bottom: 0.3rem;
 }
-.app-header-icon { font-size: 1.3rem; }
 .app-header-title { font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1.2; }
 .app-subtitle { font-size: 0.72rem; color: rgba(255,255,255,0.75); line-height: 1.4; margin-bottom: 0.5rem; }
 
-/* ── Divider ── */
 .divider {
     border: none; border-top: 1px solid rgba(255,255,255,0.12);
     margin: 0.5rem 0;
 }
 
-/* ── Text area ── */
 .stTextArea label {
     color: #fff !important; font-weight: 600 !important;
     font-size: 0.78rem !important; margin-bottom: 0.15rem !important;
@@ -147,7 +136,6 @@ a      { color: #d8b4fe !important; }
 }
 .stTextArea textarea::placeholder { color: rgba(255,255,255,0.38) !important; font-style: italic; }
 
-/* ── File uploader ── */
 [data-testid="stFileUploader"] label {
     color: #fff !important; font-weight: 600 !important; font-size: 0.78rem !important;
 }
@@ -165,21 +153,6 @@ a      { color: #d8b4fe !important; }
     font-size: 0.72rem !important; color: rgba(255,255,255,0.6) !important;
 }
 
-/* ── Input mode tabs ── */
-.input-tab {
-    display: inline-block; padding: 0.2rem 0.7rem;
-    border-radius: 20px; font-size: 0.72rem; font-weight: 600;
-    cursor: pointer; margin-right: 0.3rem;
-    border: 1px solid rgba(255,255,255,0.2);
-    color: rgba(255,255,255,0.6);
-    background: rgba(255,255,255,0.06);
-}
-.input-tab.active {
-    background: linear-gradient(135deg,#c084fc,#f472b6);
-    color: #fff; border-color: transparent;
-}
-
-/* ── Buttons ── */
 .stButton { margin: 0.25rem 0; }
 .stButton > button {
     background: linear-gradient(135deg, #c084fc 0%, #f472b6 100%) !important;
@@ -195,17 +168,25 @@ a      { color: #d8b4fe !important; }
     box-shadow: 0 7px 20px rgba(196,100,252,0.6) !important;
 }
 
-/* ── Download button — small version for col C ── */
-.small-download .stDownloadButton > button {
+/* ── Download button small for col C ── */
+.small-download [data-testid="stDownloadButton"] {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+.small-download [data-testid="stDownloadButton"] > button {
     background: linear-gradient(135deg, #c084fc 0%, #f472b6 100%) !important;
     color: #fff !important; font-weight: 600 !important;
     border-radius: 50px !important; border: none !important;
     font-size: 0.68rem !important; width: 100%; height: 28px;
     box-shadow: 0 2px 8px rgba(196,100,252,0.4) !important;
     padding: 0 0.6rem !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-/* ── Expander ── */
 .streamlit-expanderHeader {
     background: rgba(255,255,255,0.1) !important;
     border-radius: 9px !important; color: #fff !important;
@@ -218,16 +199,6 @@ a      { color: #d8b4fe !important; }
     border-radius: 0 0 9px 9px !important; padding: 0.55rem !important;
 }
 
-/* ── Crisis card ── */
-.crisis-card {
-    background: rgba(255,255,255,0.09);
-    border-radius: 10px; padding: 0.5rem 0.6rem;
-    margin: 0.2rem 0; border: 1px solid rgba(255,255,255,0.15);
-    font-size: 0.74rem; line-height: 1.65;
-}
-.crisis-card a { color: #d8b4fe !important; }
-
-/* ── Immediate support pill cards ── */
 .support-pill {
     background: rgba(255,255,255,0.1);
     border-radius: 10px; padding: 0.42rem 0.55rem;
@@ -237,20 +208,18 @@ a      { color: #d8b4fe !important; }
 }
 .support-pill strong { display: block; margin-bottom: 0.15rem; font-size: 0.74rem; }
 
-/* ── Remember card ── */
 .remember-card {
     background: rgba(255,255,255,0.07);
     border-radius: 10px; padding: 0.45rem 0.65rem;
     border: 1px solid rgba(255,255,255,0.13);
     font-size: 0.72rem; line-height: 1.9;
-    text-align: center; margin-top: 0.4rem;
+    text-align: center; margin-top: 0.15rem;
 }
 .remember-card span {
     color: rgba(255,255,255,0.82) !important;
     display: inline-block; margin: 0 0.3rem;
 }
 
-/* ── Result card ── */
 .result-card {
     background: rgba(255,255,255,0.1);
     border-radius: 14px; padding: 0.65rem 0.8rem;
@@ -263,7 +232,6 @@ a      { color: #d8b4fe !important; }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Stat cards ── */
 .stat-row { display: flex; gap: 0.3rem; margin-bottom: 0.3rem; }
 .stat-card {
     flex: 1; background: rgba(255,255,255,0.1);
@@ -273,7 +241,6 @@ a      { color: #d8b4fe !important; }
 .stat-number { font-size: 1.2rem; font-weight: 700; color: #fff; }
 .stat-label  { font-size: 0.6rem; color: rgba(255,255,255,0.68); text-transform: uppercase; letter-spacing: 0.7px; }
 
-/* ── Confidence badge ── */
 .conf-badge {
     display: inline-block; padding: 0.2rem 0.65rem;
     border-radius: 20px; font-size: 0.72rem; font-weight: 600;
@@ -282,18 +249,15 @@ a      { color: #d8b4fe !important; }
 .conf-medium { background: linear-gradient(135deg,#c084fc,#f472b6); color:#fff; }
 .conf-low    { background: linear-gradient(135deg,#fbbf24,#1e40af); color:#fff; }
 
-/* ── Risk badge ── */
 .risk-high { color: #fca5a5 !important; font-weight: 700 !important; }
 .risk-low  { color: #86efac !important; font-weight: 700 !important; }
 
-/* ── Progress bar ── */
 .stProgress > div > div > div > div {
     background: linear-gradient(90deg,#c084fc,#f472b6);
     border-radius: 6px; height: 8px;
 }
 .stProgress > div > div { background: rgba(255,255,255,0.15); border-radius: 6px; }
 
-/* ── Alert boxes ── */
 .stWarning {
     background: rgba(251,191,36,0.14) !important; color:#fff !important;
     border-left: 3px solid #fbbf24 !important; border-radius: 9px !important;
@@ -310,7 +274,6 @@ a      { color: #d8b4fe !important; }
     padding: 0.45rem 0.7rem !important; font-size: 0.75rem; font-weight:600;
 }
 
-/* ── Footer ── */
 .col-footer {
     font-size: 0.65rem; color: rgba(255,255,255,0.45);
     text-align: center; border-top: 1px solid rgba(255,255,255,0.1);
@@ -336,7 +299,6 @@ if 'last_result'    not in st.session_state: st.session_state.last_result    = N
 if 'input_mode'     not in st.session_state: st.session_state.input_mode     = "text"
 if 'download_text'  not in st.session_state: st.session_state.download_text  = ""
 
-# ─── Patch stale history entries ──────────────────────────────────────────────
 for entry in st.session_state.analytics.get('history', []):
     entry.setdefault('cls',  'Unknown')
     entry.setdefault('ts',   '')
@@ -393,11 +355,19 @@ def run_analysis(text):
 
 def extract_text_from_image(image_file):
     try:
-        img = Image.open(image_file).convert("RGB")
+        img  = Image.open(image_file).convert("RGB")
         text = pytesseract.image_to_string(img, config='--psm 6')
         return text.strip()
-    except Exception as e:
+    except Exception:
         return None
+
+def build_download_text(text, prob, ms):
+    label_    = "Suicidal / Negative"  if prob < 0.5 else "Non-Suicidal / Positive"
+    risk_lbl_ = "HIGH RISK"            if prob < 0.5 else "LOW RISK"
+    conf_     = prob if prob >= 0.5 else (1 - prob)
+    return (f"Tweet:\n{text}\n\nPrediction: {label_}\n"
+            f"Risk: {risk_lbl_}\nConfidence: {conf_:.1%}\n"
+            f"Latency: {ms:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
 def gauge(prob):
     if prob >= 0.5:
@@ -493,14 +463,8 @@ with colA:
         if analyze_btn:
             if user_input.strip():
                 p, ms = run_analysis(user_input)
-                label_    = "Suicidal / Negative" if p < 0.5 else "Non-Suicidal / Positive"
-                risk_lbl_ = "HIGH RISK"            if p < 0.5 else "LOW RISK"
-                conf_     = p if p >= 0.5 else (1 - p)
-                res_txt   = (f"Tweet:\n{user_input}\n\nPrediction: {label_}\n"
-                             f"Risk: {risk_lbl_}\nConfidence: {conf_:.1%}\n"
-                             f"Latency: {ms:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
                 st.session_state.last_result   = {'prob': p, 'ms': ms, 'text': user_input, 'ok': True}
-                st.session_state.download_text = res_txt
+                st.session_state.download_text = build_download_text(user_input, p, ms)
             else:
                 st.session_state.last_result = {'ok': False, 'empty': True}
             st.rerun()
@@ -508,14 +472,8 @@ with colA:
         if st.session_state.should_analyze and st.session_state.user_input.strip():
             st.session_state.should_analyze = False
             p, ms = run_analysis(st.session_state.user_input)
-            label_    = "Suicidal / Negative" if p < 0.5 else "Non-Suicidal / Positive"
-            risk_lbl_ = "HIGH RISK"            if p < 0.5 else "LOW RISK"
-            conf_     = p if p >= 0.5 else (1 - p)
-            res_txt   = (f"Tweet:\n{st.session_state.user_input}\n\nPrediction: {label_}\n"
-                         f"Risk: {risk_lbl_}\nConfidence: {conf_:.1%}\n"
-                         f"Latency: {ms:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
             st.session_state.last_result   = {'prob': p, 'ms': ms, 'text': st.session_state.user_input, 'ok': True}
-            st.session_state.download_text = res_txt
+            st.session_state.download_text = build_download_text(st.session_state.user_input, p, ms)
             st.rerun()
 
     # ── IMAGE MODE ───────────────────────────────────────────────────────────
@@ -546,14 +504,8 @@ with colA:
                     extracted = extract_text_from_image(uploaded_file)
                 if extracted:
                     p, ms = run_analysis(extracted)
-                    label_    = "Suicidal / Negative" if p < 0.5 else "Non-Suicidal / Positive"
-                    risk_lbl_ = "HIGH RISK"            if p < 0.5 else "LOW RISK"
-                    conf_     = p if p >= 0.5 else (1 - p)
-                    res_txt   = (f"Tweet:\n{extracted}\n\nPrediction: {label_}\n"
-                                 f"Risk: {risk_lbl_}\nConfidence: {conf_:.1%}\n"
-                                 f"Latency: {ms:.1f}ms\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
                     st.session_state.last_result   = {'prob': p, 'ms': ms, 'text': extracted, 'ok': True, 'from_image': True}
-                    st.session_state.download_text = res_txt
+                    st.session_state.download_text = build_download_text(extracted, p, ms)
                 else:
                     st.session_state.last_result = {'ok': False, 'ocr_fail': True}
             else:
@@ -628,7 +580,9 @@ with colB:
             unsafe_allow_html=True
         )
         st.markdown(
-            f'<div style="text-align:center;margin:0.25rem 0 0.4rem"><span style="background:linear-gradient(135deg,#43e97b,#38f9d7);color:#0b1727;padding:4px 14px;border-radius:999px;font-size:0.68rem;font-weight:600">⚡ {r["ms"]:.1f}ms</span></div>',
+            f'<div style="text-align:center;margin:0.25rem 0 0.4rem">'
+            f'<span style="background:linear-gradient(135deg,#43e97b,#38f9d7);color:#0b1727;padding:4px 14px;'
+            f'border-radius:999px;font-size:0.68rem;font-weight:600">⚡ {r["ms"]:.1f}ms</span></div>',
             unsafe_allow_html=True
         )
         st.markdown('</div>', unsafe_allow_html=True)
@@ -639,7 +593,7 @@ with colB:
             st.error("🚨 **CRISIS ALERT** — High-risk content detected! Please use the helplines above.")
 
     st.markdown("""
-    <div class="remember-card">
+    <div class="remember-card" style="margin-top:0.15rem">
         <strong style="font-size:0.74rem;color:#fff;display:block;margin-bottom:0.15rem">💙 Remember</strong>
         <span>🤝 You are not alone</span>
         <span style="color:rgba(255,255,255,0.35)">·</span>
@@ -711,10 +665,10 @@ with colC:
                 st.markdown('</div>', unsafe_allow_html=True)
 
         for item in reversed(a['history'][-5:]):
-            cls  = item.get('cls',  'Unknown')
-            ts   = item.get('ts',   '')
-            prob = item.get('prob', 0.0)
-            txt  = item.get('txt',  '')
+            cls   = item.get('cls',  'Unknown')
+            ts    = item.get('ts',   '')
+            prob  = item.get('prob', 0.0)
+            txt   = item.get('txt',  '')
             emoji = "🟢" if cls == "Positive" else "🔴"
             st.markdown(
                 f'<p style="margin:0.1rem 0;font-size:0.69rem">{emoji} <strong>{cls}</strong> · {ts} · {prob:.0%}<br>'
