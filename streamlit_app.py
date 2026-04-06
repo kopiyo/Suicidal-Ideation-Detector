@@ -59,7 +59,7 @@ html, body {
 
 .main .block-container {
     max-width: 100% !important;
-    padding: 0.4rem 0.8rem 0.4rem 0.8rem !important;
+    padding: 0 0.8rem 0.4rem 0.8rem !important;
     margin: 0 !important;
     height: 100vh;
     overflow: hidden;
