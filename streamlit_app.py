@@ -169,22 +169,31 @@ a      { color: #d8b4fe !important; }
 }
 
 /* ── Download button small for col C ── */
-.small-download [data-testid="stDownloadButton"] {
-    opacity: 1 !important;
-    visibility: visible !important;
+.small-download [data-testid="stDownloadButton"],
+.small-download [data-testid="stDownloadButton"] * {
+    all: unset !important;
 }
 .small-download [data-testid="stDownloadButton"] > button {
     background: linear-gradient(135deg, #c084fc 0%, #f472b6 100%) !important;
-    color: #fff !important; font-weight: 600 !important;
-    border-radius: 50px !important; border: none !important;
-    font-size: 0.68rem !important; width: 100%; height: 28px;
+    color: #fff !important;
+    font-weight: 600 !important;
+    font-family: 'Inter', sans-serif !important;
+    border-radius: 50px !important;
+    border: none !important;
+    font-size: 0.68rem !important;
+    width: 100% !important;
+    height: 28px !important;
     box-shadow: 0 2px 8px rgba(196,100,252,0.4) !important;
     padding: 0 0.6rem !important;
-    opacity: 1 !important;
-    visibility: visible !important;
+    cursor: pointer !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    text-align: center !important;
+}
+.small-download [data-testid="stDownloadButton"] > button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 14px rgba(196,100,252,0.6) !important;
 }
 
 .streamlit-expanderHeader {
