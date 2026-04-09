@@ -532,11 +532,10 @@ def fetch_reddit(username, client_id, client_secret):
     return posts
 
 def download_audio(url, out_dir):
+    """Download audio and trim to first 5 minutes."""
     out_template = os.path.join(out_dir, "audio.%(ext)s")
-    cmd = ["yt-dlp", "--extract-audio", "--audio-format", "mp3",
-           "--audio-quality", "5", "--no-playlist", "--quiet",
-           "-o", out_template, url]
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+    cmd = ["yt-dlp","--extract-audio","--audio-format","mp3","--audio-quality","5","--no-playlist","--quiet","-o",out_template,url]
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
     if result.returncode != 0:
         raise RuntimeError(f"Download failed: {result.stderr.strip()}")
     mp3 = os.path.join(out_dir, "audio.mp3")
@@ -545,6 +544,14 @@ def download_audio(url, out_dir):
         if not files:
             raise RuntimeError("Audio file not found after download.")
         mp3 = str(files[0])
+    trimmed = os.path.join(out_dir, "audio_trimmed.mp3")
+    trim_cmd = ["ffmpeg","-i",mp3,"-t","300","-acodec","libmp3lame","-q:a","5","-y",trimmed,"-loglevel","error"]
+    try:
+        trim_result = subprocess.run(trim_cmd, capture_output=True, timeout=60)
+        if trim_result.returncode == 0 and os.path.exists(trimmed) and os.path.getsize(trimmed) > 1000:
+            return trimmed
+    except Exception:
+        pass
     return mp3
 
 def transcribe_audio(audio_path):
@@ -1039,15 +1046,14 @@ with tab_video:
             else:
                 st.session_state.video_result = None
                 progress = st.progress(0); status = st.empty()
-                import shutil as _shutil
-                tmpdir = tempfile.mkdtemp()
                 try:
-                    status.markdown('<p style="font-size:0.76rem;color:#5eead4">Downloading audio...</p>', unsafe_allow_html=True)
-                    progress.progress(15)
-                    audio_path = download_audio(url, tmpdir)
-                    status.markdown('<p style="font-size:0.76rem;color:#5eead4">Transcribing speech...</p>', unsafe_allow_html=True)
-                    progress.progress(50)
-                    transcript = transcribe_audio(audio_path)
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        status.markdown('<p style="font-size:0.76rem;color:#5eead4">Downloading audio...</p>', unsafe_allow_html=True)
+                        progress.progress(15)
+                        audio_path = download_audio(url, tmpdir)
+                        status.markdown('<p style="font-size:0.76rem;color:#5eead4">Transcribing speech...</p>', unsafe_allow_html=True)
+                        progress.progress(50)
+                        transcript = transcribe_audio(audio_path)
                     progress.progress(75)
                     if not transcript.strip():
                         st.session_state.video_result = {"ok":False,"reason":"no_speech","url":url}
@@ -1060,8 +1066,6 @@ with tab_video:
                 except RuntimeError as e:
                     progress.progress(100); status.empty()
                     st.session_state.video_result = {"ok":False,"reason":"error","msg":str(e),"url":url}
-                finally:
-                    _shutil.rmtree(tmpdir, ignore_errors=True)
                 st.rerun()
     with vB:
         vr = st.session_state.video_result
