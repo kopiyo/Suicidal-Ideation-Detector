@@ -1,0 +1,78 @@
+[13/02/2026, 18:40:39] Cohen GVSU: ‎Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them.
+[13/02/2026, 18:40:39] Diana Felix: 9DPIY
+[06/03/2026, 19:56:45] Diana Felix: Hello Cohen
+[06/03/2026, 19:56:50] Diana Felix: Diana here
+[06/03/2026, 19:57:06] Diana Felix: Rada ni gani kesho? You were to take me somewhere 😅
+[06/03/2026, 20:10:20] Cohen GVSU: Hello Diana
+[06/03/2026, 20:10:56] Cohen GVSU: Yeah we can go early?
+[06/03/2026, 20:12:21] Diana Felix: What time?
+[06/03/2026, 20:12:51] Cohen GVSU: Is 11 am okay for you?
+[06/03/2026, 20:13:32] Diana Felix: Yes, tupatane basi Kirkoff
+[06/03/2026, 20:19:30] Cohen GVSU: Okay no problem ✅
+Have a good night
+[06/03/2026, 20:28:29] Diana Felix: Thanks. Good night too
+[07/03/2026, 10:29:20] Diana Felix: Hello
+[07/03/2026, 10:29:38] Diana Felix: Si tunaenda ama?
+[07/03/2026, 10:30:25] Cohen GVSU: Hey yeah sure 11 am kirkhof✅
+[07/03/2026, 10:30:43] Diana Felix: See you then
+[07/03/2026, 10:35:09] Cohen GVSU: Great 👍
+[07/03/2026, 15:13:02] Diana Felix: ‎Voice call, ‎No answer
+[07/03/2026, 15:15:08] Cohen GVSU: ‎Voice call, ‎15 sec
+[07/03/2026, 16:18:13] Diana Felix: ‎Voice call, ‎5 sec
+[07/03/2026, 18:54:11] Diana Felix: Here you go;
+https://www.michigan.gov/sos/resources/forms/what-every-driver-must-know
+[07/03/2026, 19:06:49] Cohen GVSU: Thank you so much
+[07/03/2026, 23:19:45] Diana Felix: You are welcome
+[21/03/2026, 18:19:18] Diana Felix: Hey, uko aje? Ulipata iyo ya summer housing?
+[21/03/2026, 18:39:10] Cohen GVSU: Hey nko poa sana .,, zii niliuma rejection moja safi😂
+[21/03/2026, 18:40:31] Diana Felix: Ooh, pole sana, I am asking because my roomate got it.
+[21/03/2026, 18:47:45] Cohen GVSU: Oh okay thanks acha ningojee zingine
+[21/03/2026, 18:48:40] Diana Felix: I am personally looking for a place to stay in summer
+[21/03/2026, 18:49:02] Diana Felix: My lease enda in May
+[21/03/2026, 19:30:38] Cohen GVSU: Have you considered Campus west ?
+[21/03/2026, 19:30:54] Cohen GVSU: It’s a bit cheaper
+[21/03/2026, 19:31:15] Diana Felix: Yes, I have. But I know they will want a deposit and rent
+[21/03/2026, 19:33:04] Cohen GVSU: Yeah for sure
+[21/03/2026, 19:33:15] Cohen GVSU: You will get a place don’t worry
+[21/03/2026, 19:34:45] Diana Felix: Thanks Cohen. I know I will.
+[21/03/2026, 19:47:26] Cohen GVSU: Nikisikia mtu amepata ile ya housing and their lease is still on ndakushow
+[21/03/2026, 19:48:15] Diana Felix: sawasawa
+[27/03/2026, 16:12:24] Diana Felix: Have you applied for credit card?
+[27/03/2026, 17:32:17] Cohen GVSU: Hey yes i did
+[31/03/2026, 20:06:01] Cohen GVSU: Hey sasa umesomea machine learning?
+[01/04/2026, 06:09:58] Diana Felix: Hey Cohen kidogo tu lakini
+[01/04/2026, 12:09:51] Cohen GVSU: Oh sawa mi pia nimejaribu kusoma soma sishiki😂😂
+[01/04/2026, 12:21:46] Diana Felix: 😂😂😂ni kuiba sasa
+[01/04/2026, 15:17:48] Diana Felix: Question 1
+
+Increasing the number of neurons in neural network hidden layers generally:
+
+Answer: ✅ Increases model capacity
+‎[01/04/2026, 15:17:48] Diana Felix: ‎image omitted
+‎[01/04/2026, 15:17:48] Diana Felix: ‎image omitted
+[01/04/2026, 15:17:48] Diana Felix: Question 4
+
+Explain the vanishing gradient problem in neural networks. What causes this issue, and what techniques can be used to mitigate or overcome it?
+
+Answer:
+The vanishing gradient problem occurs when gradients become very small during backpropagation, especially in deep networks. This prevents earlier layers from learning effectively.
+
+Causes:
+
+Deep networks
+Sigmoid/tanh activations (small derivatives)
+Repeated multiplication of small gradients
+
+Solutions:
+
+ReLU / Leaky ReLU
+Batch normalization
+Residual connections (ResNet)
+Proper weight initialization (He/Xavier)
+LSTM/GRU (for sequences)
+[01/04/2026, 15:17:48] Diana Felix: Question 5
+
+What is the purpose of applying padding in the convolutional layers of a Convolutional Neural Network (CNN) model?
+
+Answer:
+👉 To preserve spatial dimensions and avoid shrinking of feature maps
